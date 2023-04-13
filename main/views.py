@@ -65,6 +65,7 @@ class UserTranscriptionsView(TemplateView):
 
 
 def upload_audio(request):
+    logger.info(request.META)
     try:
         audio_blob = request.FILES["audio_blob"]
         Recording.objects.create(
