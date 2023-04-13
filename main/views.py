@@ -43,13 +43,17 @@ class HomeView(TemplateView):
             transcription_file = f"{session_path}/transcript_{session_id}.txt"
             with open(transcription_file, "a") as txt_file:
                 for idx, file in enumerate(files, start=1):
-                    txt = transcribe(file)
+                    try:
+                        txt = transcribe(file)
+                    except Exception as e:
+                        logger.error(f"<ALS>> Transcribe error: {e}")
+                        return JsonResponse({"success": False})
                     txt_file.writelines(f"{idx}- {txt}\n")
             Transcription.objects.create(file=transcription_file, session=session_id)
 
         else:
             messages.warning(request, "No files to transcribe")
-        return redirect(request.META["HTTP_REFERER"])
+        return JsonResponse({"success": True})
 
 
 class UserTranscriptionsView(TemplateView):

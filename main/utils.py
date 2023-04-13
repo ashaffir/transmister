@@ -37,7 +37,10 @@ openai.api_key = OPENAI_KEY
 
 def transcribe(audio_file):
     audio_file = open(audio_file, "rb")
-    transcript = openai.Audio.transcribe("whisper-1", audio_file, language="he")
+    try:
+        transcript = openai.Audio.transcribe("whisper-1", audio_file, language="he")
+    except Exception as e:
+        raise e
 
     user_text = f"{transcript['text']}"
 
