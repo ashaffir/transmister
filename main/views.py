@@ -29,7 +29,7 @@ class HomeView(TemplateView):
                 ) as txt_file:
                     context["transcription"] = txt_file.read()
         except:
-            logger.warning("no session ID exising. segging a new one")
+            logger.warning("no session ID exising. setting a new one")
 
         # Setting a new session ID (timestamp) for the files path
         request.session["session"] = int(datetime.timestamp(datetime.now()))
@@ -65,7 +65,7 @@ class UserTranscriptionsView(TemplateView):
 
 
 def upload_audio(request):
-    logger.info(request.META)
+    logger.info(f"<ALS>> {request.META['HTTP_COOKIE']}")
     try:
         audio_blob = request.FILES["audio_blob"]
         Recording.objects.create(

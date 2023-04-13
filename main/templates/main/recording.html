@@ -60,8 +60,6 @@
 
     function startRecording() {
         console.log(`START...`);
-        var csrfToken = '{% csrf_token %}'
-        console.log(`Token ${csrfToken}`);
 
         navigator.mediaDevices.getUserMedia({ audio: true })
             .then(function (stream) {

@@ -35,11 +35,6 @@ DEBUG = bool(os.getenv("DEBUG"))
 ALLOWED_HOSTS = ["*"]
 
 CORS_ORIGIN_ALLOW_ALL = True
-# CORS_ORIGIN_WHITELIST = [
-#     'localhost',
-# ]
-
-# Application definition
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -187,3 +182,5 @@ OPENAI_KEY = os.getenv("OPENAI_KEY")
 SECURE_SSL_REDIRECT = False
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = "Lax"
+CSRF_TRUSTED_ORIGINS = ["https://transmister.com", "https://www.transmister.com"]
