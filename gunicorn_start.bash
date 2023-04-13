@@ -1,8 +1,8 @@
 #!/bin/bash
 
-NAME="langmister"                                   # Name of the application
-DJANGODIR=/home/ubuntu/langmister/transmister               # Django project directory
-SOCKFILE=/home/ubuntu/langmister/venv_transmister/run/gunicorn.sock  # we will communicte using this unix socket
+NAME="transmister"                                   # Name of the application
+DJANGODIR=/home/ubuntu/transmister                  # Django project directory
+SOCKFILE=/home/ubuntu/transmister/venv_transmister/run/gunicorn.sock  # we will communicte using this unix socket
 USER=ubuntu                                         # the user to run as
 GROUP=ubuntu                                        # the group to run as
 NUM_WORKERS=2                                       # how many worker processes should Gunicorn spawn
@@ -13,7 +13,7 @@ echo "Starting $NAME as `whoami`"
 # Activate the virtual environment
 
 cd $DJANGODIR
-source /home/ubuntu/langmister/venv_transmister/bin/activate
+source /home/ubuntu/transmister/venv_transmister/bin/activate
 export DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
 export PYTHONPATH=$DJANGODIR:$PYTHONPATH
 
