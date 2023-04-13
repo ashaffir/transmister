@@ -58,6 +58,21 @@
     var timer = null;
     var recordingTime = 0;
 
+    function getFileExtension(mimeType) {
+        switch (mimeType) {
+            case 'audio/wav':
+                return 'wav';
+            case 'audio/webm':
+                return 'webm';
+            case 'audio/ogg':
+                return 'ogg';
+            case 'audio/mp4':
+                return 'mp4';
+            default:
+                return 'unknown';
+        }
+    }
+
     function startRecording() {
         console.log(`START...`);
 
@@ -68,11 +83,11 @@
                     chunks.push(event.data);
                 });
                 mediaRecorder.addEventListener("stop", function () {
-                    var blob = new Blob(chunks, { type: "audio/mp4" });
+                    var blob = new Blob(chunks, { type: mediaRecorder.mimeType });
                     clearInterval(timer);
                     recordingTime = 0;
                     var formData = new FormData();
-                    formData.append("audio_blob", blob, "recording.mp4");
+                    formData.append("audio_blob", blob, "recording." + getFileExtension(mediaRecorder.mimeType));
                     formData.append("csrfmiddlewaretoken", document.querySelector('[name=csrfmiddlewaretoken]').value)
                     $.ajax({
                         url: "{% url 'main:upload' %}",
