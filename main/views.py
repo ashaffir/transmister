@@ -72,5 +72,5 @@ def upload_audio(request):
         )
         return JsonResponse({"success": True})
     except Exception as e:
-        print(e)
+        logger.error(e)
         return JsonResponse({"success": False})
