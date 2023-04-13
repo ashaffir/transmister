@@ -60,6 +60,8 @@
 
     function startRecording() {
         console.log(`START...`);
+        var csrfToken = $('meta[name="csrf-token"]').attr('content');
+        console.log(`Token ${csrfToken}`);
 
         navigator.mediaDevices.getUserMedia({ audio: true })
             .then(function (stream) {
@@ -73,13 +75,17 @@
                     recordingTime = 0;
                     var formData = new FormData();
                     formData.append("audio_blob", blob, "recording.wav");
-                    formData.append("csrfmiddlewaretoken", document.querySelector('[name=csrfmiddlewaretoken]').value)
+                    // formData.append("csrfmiddlewaretoken", document.querySelector('[name=csrfmiddlewaretoken]').value)
                     $.ajax({
                         url: "{% url 'main:upload' %}",
                         type: "POST",
                         data: formData,
                         processData: false,
                         contentType: false,
+                        beforeSend: function (xhr) {
+                            // Include the CSRF token in the request header
+                            xhr.setRequestHeader("X-CSRFToken", csrfToken);
+                        },
                         success: function () {
                             chunks = [];
                         }
