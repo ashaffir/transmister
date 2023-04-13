@@ -182,3 +182,8 @@ DEFAULT_FROM_EMAIL = "Toromate<toromate6802@gmail.com>"
 
 # OpenAI
 OPENAI_KEY = os.getenv("OPENAI_KEY")
+
+# SSL
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
