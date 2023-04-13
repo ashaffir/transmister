@@ -60,7 +60,7 @@
 
     function startRecording() {
         console.log(`START...`);
-        var csrfToken = $('meta[name="csrf-token"]').attr('content');
+        var csrfToken = '{% csrf_token %}'
         console.log(`Token ${csrfToken}`);
 
         navigator.mediaDevices.getUserMedia({ audio: true })
@@ -84,7 +84,9 @@
                         contentType: false,
                         beforeSend: function (xhr) {
                             // Include the CSRF token in the request header
+                            // xhr.setRequestHeader("X-CSRFToken", csrfToken);
                             xhr.setRequestHeader("X-CSRFToken", csrfToken);
+
                         },
                         success: function () {
                             chunks = [];
