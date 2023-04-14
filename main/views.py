@@ -7,12 +7,15 @@ from django.views import View
 from django.contrib import messages
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 from transmister.settings import MEDIA_ROOT, MEDIA_URL
 from .models import Recording, Transcription
-from .utils import transcribe, logger
+from .utils import convert_aac_to_wav, transcribe, logger
 
 
+@method_decorator(csrf_exempt, name="dispatch")
 class HomeView(TemplateView):
     """Home page"""
 
@@ -47,13 +50,14 @@ class HomeView(TemplateView):
                         txt = transcribe(file)
                     except Exception as e:
                         logger.error(f"<ALS>> Transcribe error: {e}")
-                        return JsonResponse({"success": False})
+                        messages.error(f"{e}")
+
                     txt_file.writelines(f"{idx}- {txt}\n")
             Transcription.objects.create(file=transcription_file, session=session_id)
 
         else:
             messages.warning(request, "No files to transcribe")
-        return JsonResponse({"success": True})
+        return redirect(request.META["HTTP_REFERER"])
 
 
 class UserTranscriptionsView(TemplateView):
@@ -68,14 +72,19 @@ class UserTranscriptionsView(TemplateView):
         return context
 
 
+@csrf_exempt
 def upload_audio(request):
-    logger.info(f"<ALS>> {request.META['HTTP_COOKIE']}")
     try:
         audio_blob = request.FILES["audio_blob"]
-        Recording.objects.create(
-            session=request.session["session"], voice_recording=audio_blob
+        device = request.POST["device"]
+        recording = Recording(
+            session=request.session["session"],
+            voice_recording=audio_blob,
+            audio_type=device,
         )
+        recording.save()
+
         return JsonResponse({"success": True})
     except Exception as e:
-        logger.error(e)
+        logger.error(f"<ALS>> Failed uploading audio: {e}")
         return JsonResponse({"success": False})

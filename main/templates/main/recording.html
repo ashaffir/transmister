@@ -89,6 +89,7 @@
                     var formData = new FormData();
                     formData.append("audio_blob", blob, "recording." + getFileExtension(mediaRecorder.mimeType));
                     formData.append("csrfmiddlewaretoken", document.querySelector('[name=csrfmiddlewaretoken]').value)
+                    formData.append("device", mediaRecorder.mimeType)
                     $.ajax({
                         url: "{% url 'main:upload' %}",
                         type: "POST",

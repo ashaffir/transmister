@@ -1,4 +1,5 @@
 import os
+import subprocess
 import openai
 import logging
 from django.core.mail import EmailMultiAlternatives
@@ -45,3 +46,25 @@ def transcribe(audio_file):
     user_text = f"{transcript['text']}"
 
     return user_text
+
+
+def convert_aac_to_wav(input_file, output_file):
+    try:
+        ffmpeg_path = "ffmpeg"  # Adjust this if FFmpeg is not in your system's PATH
+        cmd = [
+            ffmpeg_path,
+            "-i",
+            input_file,
+            "-acodec",
+            "pcm_s16le",
+            "-ar",
+            "16000",
+            "-ac",
+            "1",
+            output_file,
+        ]
+        subprocess.run(cmd, check=True)
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"Error converting audio file: {e}")
+        return False
