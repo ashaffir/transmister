@@ -50,7 +50,7 @@ class HomeView(TemplateView):
                         txt = transcribe(file)
                     except Exception as e:
                         logger.error(f"<ALS>> Transcribe error: {e}")
-                        messages.error(f"{e}")
+                        messages.error(request, f"{e}")
 
                     txt_file.writelines(f"{idx}- {txt}\n")
             Transcription.objects.create(file=transcription_file, session=session_id)
