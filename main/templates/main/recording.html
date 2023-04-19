@@ -1,32 +1,38 @@
 {% extends 'main/base.html' %}
-
+{% load static %}
+{% block css %}
+<link href="{% static 'css/mystyle.css' %}" rel="stylesheet">
+{% endblock css %}
 {% block content %}
 <div class="row">
     <div class="col-sm-12 col-lg-12 col-md-12 col-12">
         <h1>Record and transcribe</h1>
+        <h4>Session: {{ session.id }}</h4>
     </div>
 </div>
 <div class="row mb-5">
     <div class="col-sm-12 col-lg-12 col-md-12 col-12">
-        <button id="record-button" class="btn btn-lg btn-primary">Record</button>
+        <button id="record-button" class="record_button">
+            <span id="record_spinner"></span>Record</button>
         <span id="recording-time" style="margin-left: 10px;"></span>
     </div>
 </div>
-<ul>
-    {% for rec in recordings.get_session_recordings %}
-    <li>{{ rec }}</li>
-    {% endfor %}
-</ul>
-<form action="{% url 'main:home' %}" method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <div class="row">
-        <div class="col-sm-12 col-lg-12 col-md-12 col-12">
-            <button class="btn btn-lg w-100 btn-warning" type="submit" name="transcribe">Transacribe</button>
-        </div>
-    </div>
-</form>
+<div class="row mb-5">
+    <div class="col-12 col-sm-12 col-lg-12 col-md-12" id="recordings">
 
-<div class="row w-100">
+    </div>
+</div>
+<div class="row" style="margin-top: 2rem; margin-bottom: 2rem;">
+    <div class="col-sm-12 col-lg-12 col-md-12 col-12">
+
+        <button id="runButton" onclick="transcribeRecording()" class="transcribe_button">
+            <span id="spinner" class="hidden"></span>Transcribe
+        </button>
+
+    </div>
+</div>
+
+<!-- <div class="row w-100">
     <div class="col-12">
         <div class="x_panel">
             <div class="x_title">
@@ -35,29 +41,35 @@
             </div>
             <div class="x_content">
                 <div class="bs-example" data-example-id="simple-jumbotron">
-                    <div class="jumbotron">
-                        {{ transcription }}
+                    <div class="jumbotron" id="transcription_result">
+                    
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</div> -->
 <div class="row">
     <div class="col-sm-12 col-lg-12 col-md-12 col-12">
         <button class="btn btn-danger" onclick="location.reload();">Clear</button>
     </div>
 </div>
+<form action="" enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+</form>
 {% endblock %}
 
 {% block js %}
+
 <script>
     var recording = false;
     var mediaRecorder;
     var chunks = [];
     var timer = null;
     var recordingTime = 0;
+    var record_spinner = document.getElementById('record_spinner');
 
+    record_spinner.style.display = "none";
     function getFileExtension(mimeType) {
         switch (mimeType) {
             case 'audio/wav':
@@ -75,7 +87,7 @@
 
     function startRecording() {
         console.log(`START...`);
-
+        record_spinner.style.display = "block";
         navigator.mediaDevices.getUserMedia({ audio: true })
             .then(function (stream) {
                 mediaRecorder = new MediaRecorder(stream);
@@ -91,7 +103,7 @@
                     formData.append("csrfmiddlewaretoken", document.querySelector('[name=csrfmiddlewaretoken]').value)
                     formData.append("device", mediaRecorder.mimeType)
                     $.ajax({
-                        url: "{% url 'main:upload' %}",
+                        url: "{% url 'main:upload' session_id=session.id %}",
                         type: "POST",
                         data: formData,
                         processData: false,
@@ -106,13 +118,45 @@
                 startTimer();
             });
     }
-
+    $(document).on('ready', function () {
+        updateRecordings();
+    });
     function stopRecording() {
         console.log(`STOP!`);
+        record_spinner.style.display = "none";
         mediaRecorder.stop();
         clearInterval(timer);
         recordingTime = 0;
         recording = false;
+        pollForNewRecording();
+    }
+
+    function pollForNewRecording() {
+        const url = "{% url 'main:check-recordings' session_id=session.id current_count=session.get_current_count %}";
+        $.ajax({
+            url: url,
+            type: "GET",
+            success: function (response) {
+                if (response.success) {
+                    updateRecordings();
+                } else {
+                    console.log(`Waiting...`);
+                    setTimeout(pollForNewRecording, 1000); // Poll every 1 second
+                }
+            }
+        });
+    }
+
+    function updateRecordings() {
+        recordings_el = document.getElementById("recordings");
+        url = "{% url 'main:recordings' session_id=session.id %}";
+        $.ajax({
+            url: url,
+            type: "GET",
+            success: function (response) {
+                recordings_el.innerHTML = response;
+            }
+        });
     }
 
     function startTimer() {
@@ -128,10 +172,39 @@
             document.getElementById("record-button").innerText = "Record";
             document.getElementById("recording-time").innerText = "";
         } else {
-            console.log(`starting record...`);
             startRecording();
             document.getElementById("record-button").innerText = "Stop";
         }
     });
 </script>
+<script>
+    const spinner = document.getElementById('spinner');
+
+    function transcribeRecording() {
+        spinner.classList.remove('hidden');
+        const url = "{% url 'main:transcribe' session_id=session.id %}";
+        var formData = new FormData();
+        formData.append("csrfmiddlewaretoken", document.querySelector('[name=csrfmiddlewaretoken]').value)
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (message) {
+                if (message.success) {
+                    spinner.classList.add('hidden');
+                    location.reload();
+                }
+                else {
+                    console.log(`>>> ${message.success}`);
+                    spinner.classList.add('hidden');
+                    alert("Error transcribing. Contact support");
+                }
+            }
+        });
+    }
+
+</script>
+
 {% endblock js %}

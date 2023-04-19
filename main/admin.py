@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from main.models import Recording, Transcription
+from main.models import Recording, Transcription, RecodringSession
 
 
 @admin.register(Recording)
@@ -22,3 +22,13 @@ class TranscriptioAdmin(admin.ModelAdmin):
         "language",
     ]
     ordering = ("-created",)
+
+
+@admin.register(RecodringSession)
+class RecordingSessionAdmin(admin.ModelAdmin):
+    list_display = [
+        "id",
+        "started",
+        "ended",
+    ]
+    ordering = ("-started",)

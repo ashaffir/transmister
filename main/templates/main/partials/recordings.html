@@ -1,0 +1,16 @@
+<style>
+    .recording {
+        font-size: 2rem;
+    }
+</style>
+{% for record in recordings %}
+<div class="row mb-2">
+    <div class="col-sm-8 col-md-8 col-lg-8 recording">
+        {{ record.created }}
+        <a href="{{ record.voice_recording.url }}">
+            <i class="fa fa-play-circle-o fa-2x"></i>
+        </a>
+    </div>
+</div>
+
+{% endfor %}

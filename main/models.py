@@ -16,7 +16,7 @@ def recording_path(instance, filename):
 class Recording(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created = models.DateTimeField(auto_now_add=True)
-    session = models.IntegerField()
+    session = models.CharField(max_length=100)
     voice_recording = models.FileField(upload_to=recording_path)
     audio_type = models.CharField(max_length=50)
     language = models.CharField(max_length=50, null=True, blank=True)
@@ -27,7 +27,6 @@ class Recording(models.Model):
         input_file = self.voice_recording.path
         logger.info(f"{self.audio_type=}")
         if "aac" in self.audio_type or "mp4" in self.audio_type:
-            print(f">> {2}")
             output_file = os.path.splitext(input_file)[0] + "_conv.wav"
 
             if self.convert_aac_to_wav(input_file, output_file):
@@ -36,7 +35,6 @@ class Recording(models.Model):
                     self.voice_recording.save(
                         os.path.basename(output_file), content, save=False
                     )
-                    print(f">> {4}")
                     os.remove(output_file)  # Remove the temporary WAV file
 
                 os.remove(input_file)  # Remove the original AAC file
@@ -79,7 +77,7 @@ class Recording(models.Model):
 class Transcription(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created = models.DateTimeField(auto_now_add=True)
-    session = models.IntegerField()
+    session = models.CharField(max_length=100)
     file = models.FileField()
     language = models.CharField(max_length=50, null=True, blank=True)
 
@@ -97,3 +95,23 @@ class Transcription(models.Model):
         with open(self.file.name, "r") as f:
             content = f.readlines()
         return content
+
+
+class RecodringSession(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    started = models.DateTimeField(auto_now_add=True)
+    ended = models.DateTimeField(null=True, blank=True)
+    recordings = models.JSONField(default=list)
+    transcription = models.ForeignKey(
+        Transcription, on_delete=models.CASCADE, null=True, blank=True
+    )
+
+    class Meta:
+        verbose_name = "Recording Session"
+        verbose_name_plural = "Recording Sessions"
+
+    def __str__(self):
+        return str(self.id)
+
+    def get_current_count(self):
+        return len(self.recordings)

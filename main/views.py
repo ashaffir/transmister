@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Any, Dict
 from django.views.generic import TemplateView
 from django.views import View
+from django.utils.timezone import make_aware
 from django.contrib import messages
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
@@ -11,11 +12,10 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
 from transmister.settings import MEDIA_ROOT, MEDIA_URL
-from .models import Recording, Transcription
-from .utils import convert_aac_to_wav, transcribe, logger
+from .models import RecodringSession, Recording, Transcription
+from .utils import convert_aac_to_wav, transcribe_api, logger
 
 
-@method_decorator(csrf_exempt, name="dispatch")
 class HomeView(TemplateView):
     """Home page"""
 
@@ -23,41 +23,25 @@ class HomeView(TemplateView):
 
     def get(self, request):
         context = {}
-        try:
-            session_id = request.session["session"]
-            session_path = f"{MEDIA_ROOT}/recordings/{request.session['session']}"
-            if glob.glob(f"{session_path}/transcript_{session_id}.txt"):
-                with open(
-                    f"{session_path}/transcript_{session_id}.txt", "r"
-                ) as txt_file:
-                    context["transcription"] = txt_file.read()
-        except:
-            logger.warning("no session ID exising. setting a new one")
+        # Getting the last open session
+        curr_session = RecodringSession.objects.filter(ended__isnull=True).last()
+        if not curr_session:
+            curr_session = RecodringSession.objects.create()
 
-        # Setting a new session ID (timestamp) for the files path
-        request.session["session"] = int(datetime.timestamp(datetime.now()))
+        context["session"] = curr_session
+        context["recordings"] = Recording.objects.filter(session=curr_session.id)
+
+        # try:
+        #     session_path = f"{MEDIA_ROOT}/recordings/{curr_session.id}"
+        #     if glob.glob(f"{session_path}/transcript_{curr_session.id}.txt"):
+        #         with open(
+        #             f"{session_path}/transcript_{curr_session.id}.txt", "r"
+        #         ) as txt_file:
+        #             context["transcription"] = txt_file.read()
+        # except:
+        #     logger.warning("no session ID exising. setting a new one")
+
         return render(request, self.template_name, context=context)
-
-    def post(self, request):
-        session_id = request.session["session"]
-        session_path = f"{MEDIA_ROOT}/recordings/{session_id}"
-        files = sorted(glob.glob(f"{session_path}/*.wav"), key=os.path.getmtime)
-        if len(files) > 0:
-            transcription_file = f"{session_path}/transcript_{session_id}.txt"
-            with open(transcription_file, "a") as txt_file:
-                for idx, file in enumerate(files, start=1):
-                    try:
-                        txt = transcribe(file)
-                    except Exception as e:
-                        logger.error(f"<ALS>> Transcribe error: {e}")
-                        messages.error(request, f"{e}")
-
-                    txt_file.writelines(f"{idx}- {txt}\n")
-            Transcription.objects.create(file=transcription_file, session=session_id)
-
-        else:
-            messages.warning(request, "No files to transcribe")
-        return redirect(request.META["HTTP_REFERER"])
 
 
 class UserTranscriptionsView(TemplateView):
@@ -72,19 +56,83 @@ class UserTranscriptionsView(TemplateView):
         return context
 
 
-@csrf_exempt
-def upload_audio(request):
-    try:
-        audio_blob = request.FILES["audio_blob"]
-        device = request.POST["device"]
-        recording = Recording(
-            session=request.session["session"],
-            voice_recording=audio_blob,
-            audio_type=device,
-        )
-        recording.save()
+def upload_audio(request, session_id):
+    if request.POST:
+        try:
+            session = get_object_or_404(RecodringSession, id=session_id)
+            audio_blob = request.FILES["audio_blob"]
+            device = request.POST["device"]
+            recording = Recording(
+                session=session_id,
+                voice_recording=audio_blob,
+                audio_type=device,
+            )
+            recording.save()
 
+            session.recordings.append(str(recording.id))
+            session.save()
+
+            return JsonResponse({"success": True})
+        except Exception as e:
+            logger.error(f"<ALS>> Failed uploading audio: {e}")
+            return JsonResponse({"success": False})
+    else:
         return JsonResponse({"success": True})
-    except Exception as e:
-        logger.error(f"<ALS>> Failed uploading audio: {e}")
+
+
+def check_recordings(request, session_id: str, current_count: int):
+    """Checks the number of recordings in the session and returns True if there are more recordings than the current_count
+    Args:
+        session_id (str): id of the session
+        current_count (int): number of recordings in the session
+    Returns:
+        bool: True if there are more recordings than the current_count
+    """
+    session = get_object_or_404(RecodringSession, id=session_id)
+    recordings = session.recordings
+    if len(recordings) > current_count:
+        return JsonResponse({"success": True})
+    else:
         return JsonResponse({"success": False})
+
+
+def transcribe(request, session_id):
+    if request.method == "POST":
+        curr_session = RecodringSession.objects.get(id=session_id)
+        session_path = f"{MEDIA_ROOT}/recordings/{session_id}"
+        # Creating a new session
+        RecodringSession.objects.create()
+
+        files = sorted(glob.glob(f"{session_path}/*.wav"), key=os.path.getmtime)
+        if len(files) > 0:
+            transcription_file = f"{session_path}/transcript_{session_id}.txt"
+            with open(transcription_file, "a") as txt_file:
+                for idx, file in enumerate(files, start=1):
+                    try:
+                        txt = transcribe_api(file)
+                    except Exception as e:
+                        logger.error(f"<ALS>> Transcribe error: {e}")
+                        return JsonResponse({"success": False, "content": f"{e}"})
+
+                    txt_file.writelines(f"{idx}- {txt}\n")
+            Transcription.objects.create(file=transcription_file, session=session_id)
+
+            # closing current session
+            curr_session.ended = make_aware(datetime.now())
+            curr_session.save()
+
+            return JsonResponse({"success": True, "content": txt})
+
+        else:
+            messages.warning(request, "No files to transcribe")
+            return JsonResponse({"success": False, "content": "No files to transcribe"})
+
+    else:
+        return JsonResponse({"success": True})
+
+
+def recordings(request, session_id):
+    context = {}
+    recordings_list = Recording.objects.filter(session=session_id)
+    context["recordings"] = recordings_list
+    return render(request, "main/partials/recordings.html", context=context)

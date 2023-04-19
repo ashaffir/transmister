@@ -1,8 +1,76 @@
-body {
-    min-height: 2000px;
-  }
-  
-  .navbar-static-top {
-    margin-bottom: 19px;
-  }
+    li {
+      font-size: 2rem;
+    }
 
+    .limit {
+      max-width: 100%;
+      word-wrap: break-word;
+    }
+
+    .transcribe_button {
+      display: inline-flex;
+      align-items: center;
+      background-color: #1b5d37;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 2rem;
+    }
+
+    .record_button {
+      display: inline-flex;
+      align-items: center;
+      background-color: #451996;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 2rem;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @keyframes spinner {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes record_spinner {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    #spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid #fff;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spinner 0.8s linear infinite;
+      margin-right: 8px;
+    }
+
+    #record_spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid #fff;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spinner 0.8s linear infinite;
+      margin-right: 8px;
+    }

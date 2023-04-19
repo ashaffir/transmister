@@ -12,7 +12,14 @@ urlpatterns = [
         views.UserTranscriptionsView.as_view(),
         name="user-transcriptions",
     ),
-    path("upload/", views.upload_audio, name="upload"),
+    path("upload/<str:session_id>/", views.upload_audio, name="upload"),
+    path("transcribe/<str:session_id>/", views.transcribe, name="transcribe"),
+    path("recordings/<str:session_id>/", views.recordings, name="recordings"),
+    path(
+        "check-recordings/<str:session_id>/<int:current_count>/",
+        views.check_recordings,
+        name="check-recordings",
+    ),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

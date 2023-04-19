@@ -22,6 +22,10 @@
 
   <!-- Custom Theme Style -->
   <link href="{% static 'build/css/custom.min.css' %}" rel="stylesheet">
+  <link rel="shortcut icon" href="{% static 'assets/images/transmister_logotype.png' %}" />
+
+  {% block css %}
+  {% endblock css %}
 </head>
 
 <body class="nav-md">
@@ -57,8 +61,6 @@
     </div>
   </div>
 
-  {% block js %}
-  {% endblock js %}
   <!-- jQuery -->
   <script src="{% static 'vendors/jquery/dist/jquery.min.js' %}"></script>
   <!-- Bootstrap -->
@@ -72,6 +74,9 @@
 
   <!-- Custom Theme Scripts -->
   <script src="{% static 'build/js/custom.min.js' %}"></script>
+  {% block js %}
+  {% endblock js %}
+
 </body>
 
 </html>
