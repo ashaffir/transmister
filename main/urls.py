@@ -20,6 +20,12 @@ urlpatterns = [
         views.check_recordings,
         name="check-recordings",
     ),
+    path("clear-session/<str:session_id>/", views.clear_session, name="clear-session"),
+    path(
+        "delete-recording/",
+        views.delete_recording,
+        name="delete-recording",
+    ),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

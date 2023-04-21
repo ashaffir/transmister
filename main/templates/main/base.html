@@ -22,7 +22,7 @@
 
   <!-- Custom Theme Style -->
   <link href="{% static 'build/css/custom.min.css' %}" rel="stylesheet">
-  <link rel="shortcut icon" href="{% static 'assets/images/transmister_logotype.png' %}" />
+  <link rel="shortcut icon" href="{% static 'assets/images/transmister_logotype-white.png' %}" />
 
   {% block css %}
   {% endblock css %}
@@ -74,6 +74,12 @@
 
   <!-- Custom Theme Scripts -->
   <script src="{% static 'build/js/custom.min.js' %}"></script>
+  <script>
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip();
+      $('[data-toggle="popover"]').popover()
+    })
+  </script>
   {% block js %}
   {% endblock js %}
 

@@ -19,7 +19,38 @@
 </div>
 <div class="row mb-5">
     <div class="col-12 col-sm-12 col-lg-12 col-md-12" id="recordings">
+        <style>
+            .recording {
+                font-size: 2rem;
+            }
+        </style>
 
+        <table class="table">
+            <thead>
+                <th>Recording Time</th>
+                <th></th>
+                <th></th>
+            </thead>
+            <tbody>
+                {% for record in recordings %}
+                <tr>
+                    <td>
+                        {{ record.created }}
+                    </td>
+                    <td>
+                        <a href="{{ record.voice_recording.url }}">
+                            <i class="fa fa-play-circle-o fa-2x"></i>
+                        </a>
+                    </td>
+                    <td>
+                        <a href="#">
+                            <i class="fa fa-trash fa-2x" onclick="deleteRecording('{{ record.id }}')"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 <div class="row" style="margin-top: 2rem; margin-bottom: 2rem;">
@@ -32,7 +63,7 @@
     </div>
 </div>
 
-<!-- <div class="row w-100">
+<div class="row w-100">
     <div class="col-12">
         <div class="x_panel">
             <div class="x_title">
@@ -41,17 +72,22 @@
             </div>
             <div class="x_content">
                 <div class="bs-example" data-example-id="simple-jumbotron">
-                    <div class="jumbotron" id="transcription_result">
-                    
+                    <div class="jumbotron" id="transcription_result" dir="rtl">
+
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div> -->
+</div>
 <div class="row">
+    {% include 'main/modals/confirm_clear_session_modal.html' %}
+
     <div class="col-sm-12 col-lg-12 col-md-12 col-12">
-        <button class="btn btn-danger" onclick="location.reload();">Clear</button>
+        <button class="btn btn-danger" data-toggle="modal" data-target="#modal_confirm_clear_session">
+            Clear Session</button>
+        <i class="fa fa-question-circle fa-2x" data-toggle="tooltip" data-placement="top"
+            title="Deleting the recordings in the current session"></i>
     </div>
 </div>
 <form action="" enctype="multipart/form-data" method="post">
@@ -118,9 +154,7 @@
                 startTimer();
             });
     }
-    $(document).on('ready', function () {
-        updateRecordings();
-    });
+
     function stopRecording() {
         console.log(`STOP!`);
         record_spinner.style.display = "none";
@@ -132,29 +166,18 @@
     }
 
     function pollForNewRecording() {
+        console.log(`polling...`);
         const url = "{% url 'main:check-recordings' session_id=session.id current_count=session.get_current_count %}";
         $.ajax({
             url: url,
             type: "GET",
             success: function (response) {
                 if (response.success) {
-                    updateRecordings();
+                    location.reload();
                 } else {
                     console.log(`Waiting...`);
                     setTimeout(pollForNewRecording, 1000); // Poll every 1 second
                 }
-            }
-        });
-    }
-
-    function updateRecordings() {
-        recordings_el = document.getElementById("recordings");
-        url = "{% url 'main:recordings' session_id=session.id %}";
-        $.ajax({
-            url: url,
-            type: "GET",
-            success: function (response) {
-                recordings_el.innerHTML = response;
             }
         });
     }
@@ -179,6 +202,7 @@
 </script>
 <script>
     const spinner = document.getElementById('spinner');
+    const transcription_result_el = document.getElementById("transcription_result");
 
     function transcribeRecording() {
         spinner.classList.remove('hidden');
@@ -193,8 +217,10 @@
             contentType: false,
             success: function (message) {
                 if (message.success) {
+                    console.log(`M = ${message}`);
                     spinner.classList.add('hidden');
-                    location.reload();
+                    transcription_result_el.innerHTML = message.content;
+                    // location.reload();
                 }
                 else {
                     console.log(`>>> ${message.success}`);
@@ -207,4 +233,38 @@
 
 </script>
 
+<script>
+    function clearSessionRecordings() {
+        url = "{% url 'main:clear-session' session_id=session.id %}";
+        $.ajax({
+            url: url,
+            method: "GET",
+            success: function (message) {
+                if (message.success) {
+                    console.log(`Delete success`);
+                    location.reload();
+                } else {
+                    console.log(`FAIL to delete`);
+                }
+            }
+        })
+
+    }
+</script>
+
+<script>
+    function deleteRecording(recordingId) {
+        url = `{% url 'main:delete-recording' %}?recording_id=${recordingId}`;
+        $.ajax({
+            url: url,
+            method: "GET",
+            success: function (response) {
+                if (response.success) {
+                    console.log(`OK`);
+                    location.reload();
+                }
+            }
+        })
+    }
+</script>
 {% endblock js %}

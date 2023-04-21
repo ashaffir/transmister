@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
 from transmister.settings import MEDIA_ROOT, MEDIA_URL
-from .models import RecodringSession, Recording, Transcription
+from .models import RecodringSession, Recording, Transcription, Control
 from .utils import convert_aac_to_wav, transcribe_api, logger
 
 
@@ -30,16 +30,6 @@ class HomeView(TemplateView):
 
         context["session"] = curr_session
         context["recordings"] = Recording.objects.filter(session=curr_session.id)
-
-        # try:
-        #     session_path = f"{MEDIA_ROOT}/recordings/{curr_session.id}"
-        #     if glob.glob(f"{session_path}/transcript_{curr_session.id}.txt"):
-        #         with open(
-        #             f"{session_path}/transcript_{curr_session.id}.txt", "r"
-        #         ) as txt_file:
-        #             context["transcription"] = txt_file.read()
-        # except:
-        #     logger.warning("no session ID exising. setting a new one")
 
         return render(request, self.template_name, context=context)
 
@@ -72,6 +62,7 @@ def upload_audio(request, session_id):
             session.recordings.append(str(recording.id))
             session.save()
 
+            logger.info(f"<ALS>> recording {recording.id} saved")
             return JsonResponse({"success": True})
         except Exception as e:
             logger.error(f"<ALS>> Failed uploading audio: {e}")
@@ -81,19 +72,46 @@ def upload_audio(request, session_id):
 
 
 def check_recordings(request, session_id: str, current_count: int):
-    """Checks the number of recordings in the session and returns True if there are more recordings than the current_count
+    """Checks the number of recordings in the session and returns True if there are more
+        recordings than the current_count
     Args:
         session_id (str): id of the session
         current_count (int): number of recordings in the session
     Returns:
         bool: True if there are more recordings than the current_count
     """
-    session = get_object_or_404(RecodringSession, id=session_id)
-    recordings = session.recordings
-    if len(recordings) > current_count:
+    recordings = Recording.objects.filter(session=session_id).count()
+    if recordings > current_count:
         return JsonResponse({"success": True})
     else:
         return JsonResponse({"success": False})
+
+
+def recordings(request, session_id):
+    context = {}
+    context["recordings"] = Recording.objects.filter(session=session_id)
+    return render(request, "main/partials/recordings.html", context=context)
+
+
+def clear_session(request, session_id):
+    session = get_object_or_404(RecodringSession, id=session_id)
+    recordings_list = Recording.objects.filter(session=session_id)
+    for recording in recordings_list:
+        recording.delete()
+
+    session.recordings.clear()
+    session.save()
+    return JsonResponse({"success": True})
+
+
+def delete_recording(request):
+    recording = get_object_or_404(Recording, id=request.GET.get("recording_id"))
+    session = get_object_or_404(RecodringSession, id=recording.session)
+    session.recordings.remove(str(recording.id))
+    session.save()
+
+    recording.delete()
+    return JsonResponse({"success": True})
 
 
 def transcribe(request, session_id):
@@ -115,6 +133,16 @@ def transcribe(request, session_id):
                         return JsonResponse({"success": False, "content": f"{e}"})
 
                     txt_file.writelines(f"{idx}- {txt}\n")
+
+                "Adding blank rows"
+                blank_rows, created = Control.objects.get_or_create(name="blank_rows")
+                if created:
+                    blank_rows.int_value = 3
+                    blank_rows.save()
+
+                for i in range(blank_rows.int_value):
+                    txt_file.writelines("\n")
+
             Transcription.objects.create(file=transcription_file, session=session_id)
 
             # closing current session
@@ -129,10 +157,3 @@ def transcribe(request, session_id):
 
     else:
         return JsonResponse({"success": True})
-
-
-def recordings(request, session_id):
-    context = {}
-    recordings_list = Recording.objects.filter(session=session_id)
-    context["recordings"] = recordings_list
-    return render(request, "main/partials/recordings.html", context=context)

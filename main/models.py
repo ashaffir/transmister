@@ -41,8 +41,8 @@ class Recording(models.Model):
                 super().save(*args, **kwargs)
 
     class Meta:
-        verbose_name = "Record"
-        verbose_name_plural = "Records"
+        verbose_name = "Recording"
+        verbose_name_plural = "Recordings"
 
     def __str__(self):
         return str(self.id)
@@ -67,7 +67,7 @@ class Recording(models.Model):
             subprocess.run(cmd, check=True)
             return True
         except subprocess.CalledProcessError as e:
-            print(f"Error converting audio file: {e}")
+            logger.error(f"Error converting audio file: {e}")
             return False
 
     def get_absolute_url(self):
@@ -115,3 +115,23 @@ class RecodringSession(models.Model):
 
     def get_current_count(self):
         return len(self.recordings)
+
+
+class Control(models.Model):
+    """Model for storing control switches"""
+
+    name = models.CharField(max_length=50)
+    int_value = models.IntegerField(null=True, blank=True)
+    bool_value = models.BooleanField(null=True, blank=True)
+    string_value = models.CharField(max_length=50, null=True, blank=True)
+    datetime_value = models.DateTimeField(null=True, blank=True)
+    float_value = models.FloatField(null=True, blank=True)
+    json_value = models.JSONField(null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Control"
+        verbose_name_plural = "Controls"
+        ordering = ["name"]

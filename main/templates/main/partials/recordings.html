@@ -3,14 +3,30 @@
         font-size: 2rem;
     }
 </style>
-{% for record in recordings %}
-<div class="row mb-2">
-    <div class="col-sm-8 col-md-8 col-lg-8 recording">
-        {{ record.created }}
-        <a href="{{ record.voice_recording.url }}">
-            <i class="fa fa-play-circle-o fa-2x"></i>
-        </a>
-    </div>
-</div>
 
-{% endfor %}
+<table class="table">
+    <thead>
+        <th>Recording Time</th>
+        <th></th>
+        <th></th>
+    </thead>
+    <tbody>
+        {% for record in recordings %}
+        <tr>
+            <td>
+                {{ record.created }}
+            </td>
+            <td>
+                <a href="{{ record.voice_recording.url }}">
+                    <i class="fa fa-play-circle-o fa-2x"></i>
+                </a>
+            </td>
+            <td>
+                <a href="#">
+                    <i class="fa fa-trash fa-2x" onclick="deleteRecording('{{ record.id }}')"></i>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

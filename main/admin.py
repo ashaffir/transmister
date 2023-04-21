@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from main.models import Recording, Transcription, RecodringSession
+from main.models import Recording, Transcription, RecodringSession, Control
 
 
 @admin.register(Recording)
@@ -32,3 +32,20 @@ class RecordingSessionAdmin(admin.ModelAdmin):
         "ended",
     ]
     ordering = ("-started",)
+
+
+@admin.register(Control)
+class ControlAdmin(admin.ModelAdmin):
+    list_display = [
+        "id",
+        "name",
+        "int_value",
+        "float_value",
+        "bool_value",
+        "json_value",
+        "string_value",
+    ]
+    search_fields = [
+        "name",
+        "string_value",
+    ]
