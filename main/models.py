@@ -92,9 +92,13 @@ class Transcription(models.Model):
         return self.file.name.split("/")[-1]
 
     def get_content(self):
-        with open(self.file.name, "r") as f:
-            content = f.readlines()
-        return content
+        try:
+            with open(self.file.name, "r") as f:
+                content = f.readlines()
+            return content
+        except Exception as e:
+            logger.error(f"Error reading transcription file: {e}")
+            return None
 
 
 class RecodringSession(models.Model):

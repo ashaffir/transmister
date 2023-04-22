@@ -100,7 +100,9 @@ def clear_session(request, session_id):
         recording.delete()
 
     session.recordings.clear()
+    session.ended = make_aware(datetime.now())
     session.save()
+
     return JsonResponse({"success": True})
 
 
@@ -149,7 +151,9 @@ def transcribe(request, session_id):
             curr_session.ended = make_aware(datetime.now())
             curr_session.save()
 
-            return JsonResponse({"success": True, "content": txt})
+            with open(transcription_file, "r") as f:
+                txt_content = f.read()
+            return JsonResponse({"success": True, "content": txt_content})
 
         else:
             messages.warning(request, "No files to transcribe")

@@ -21,6 +21,9 @@ class TranscriptioAdmin(admin.ModelAdmin):
         "file",
         "language",
     ]
+    search_fields = [
+        "file",
+    ]
     ordering = ("-created",)
 
 

@@ -4,6 +4,14 @@
 <link href="{% static 'css/mystyle.css' %}" rel="stylesheet">
 {% endblock css %}
 {% block content %}
+<div id="loader-container">
+    <div id="loader-content">
+        <p id="loader-text"></p>
+        <button id="stop-btn" style="display: none;" class="btn btn-lg btn-warning">Stop Recording</button>
+        <span id="recording-time" style="margin-left: 10px;"></span>
+        <div id="loader"></div>
+    </div>
+</div>
 <div class="row">
     <div class="col-sm-12 col-lg-12 col-md-12 col-12">
         <h1>Record and transcribe</h1>
@@ -12,9 +20,7 @@
 </div>
 <div class="row mb-5">
     <div class="col-sm-12 col-lg-12 col-md-12 col-12">
-        <button id="record-button" class="record_button">
-            <span id="record_spinner"></span>Record</button>
-        <span id="recording-time" style="margin-left: 10px;"></span>
+        <button id="record-button" class="record_button">Record</button>
     </div>
 </div>
 <div class="row mb-5">
@@ -57,7 +63,7 @@
     <div class="col-sm-12 col-lg-12 col-md-12 col-12">
 
         <button id="runButton" onclick="transcribeRecording()" class="transcribe_button">
-            <span id="spinner" class="hidden"></span>Transcribe
+            Transcribe
         </button>
 
     </div>
@@ -85,7 +91,7 @@
 
     <div class="col-sm-12 col-lg-12 col-md-12 col-12">
         <button class="btn btn-danger" data-toggle="modal" data-target="#modal_confirm_clear_session">
-            Clear Session</button>
+            Reset/Restart Session</button>
         <i class="fa fa-question-circle fa-2x" data-toggle="tooltip" data-placement="top"
             title="Deleting the recordings in the current session"></i>
     </div>
@@ -97,15 +103,15 @@
 
 {% block js %}
 
+
+<script src="{% static 'js/myjs.js' %}"></script>
 <script>
     var recording = false;
     var mediaRecorder;
     var chunks = [];
     var timer = null;
     var recordingTime = 0;
-    var record_spinner = document.getElementById('record_spinner');
 
-    record_spinner.style.display = "none";
     function getFileExtension(mimeType) {
         switch (mimeType) {
             case 'audio/wav':
@@ -123,7 +129,6 @@
 
     function startRecording() {
         console.log(`START...`);
-        record_spinner.style.display = "block";
         navigator.mediaDevices.getUserMedia({ audio: true })
             .then(function (stream) {
                 mediaRecorder = new MediaRecorder(stream);
@@ -157,7 +162,6 @@
 
     function stopRecording() {
         console.log(`STOP!`);
-        record_spinner.style.display = "none";
         mediaRecorder.stop();
         clearInterval(timer);
         recordingTime = 0;
@@ -189,23 +193,12 @@
         }, 1000);
     }
 
-    document.getElementById("record-button").addEventListener("click", function () {
-        if (recording) {
-            stopRecording();
-            document.getElementById("record-button").innerText = "Record";
-            document.getElementById("recording-time").innerText = "";
-        } else {
-            startRecording();
-            document.getElementById("record-button").innerText = "Stop";
-        }
-    });
 </script>
 <script>
-    const spinner = document.getElementById('spinner');
     const transcription_result_el = document.getElementById("transcription_result");
 
     function transcribeRecording() {
-        spinner.classList.remove('hidden');
+        showLoader('Transcribing...');
         const url = "{% url 'main:transcribe' session_id=session.id %}";
         var formData = new FormData();
         formData.append("csrfmiddlewaretoken", document.querySelector('[name=csrfmiddlewaretoken]').value)
@@ -218,13 +211,12 @@
             success: function (message) {
                 if (message.success) {
                     console.log(`M = ${message}`);
-                    spinner.classList.add('hidden');
                     transcription_result_el.innerHTML = message.content;
+                    hideLoader();
                     // location.reload();
                 }
                 else {
                     console.log(`>>> ${message.success}`);
-                    spinner.classList.add('hidden');
                     alert("Error transcribing. Contact support");
                 }
             }
