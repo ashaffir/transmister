@@ -36,10 +36,10 @@ def alert_admin(alert):
 openai.api_key = OPENAI_KEY
 
 
-def transcribe_api(audio_file):
+def transcribe_api(audio_file, language: str = "he"):
     audio_file = open(audio_file, "rb")
     try:
-        transcript = openai.Audio.transcribe("whisper-1", audio_file, language="he")
+        transcript = openai.Audio.transcribe("whisper-1", audio_file, language=language)
     except Exception as e:
         raise e
 

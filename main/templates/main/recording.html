@@ -19,7 +19,7 @@
     </div>
 </div>
 <div class="row mb-5">
-    <div class="col-sm-12 col-lg-12 col-md-12 col-12">
+    <div class="col-sm-3 col-lg-3 col-md-3 col-3">
         <button id="record-button" class="record_button">Record</button>
     </div>
 </div>
@@ -60,11 +60,26 @@
     </div>
 </div>
 <div class="row" style="margin-top: 2rem; margin-bottom: 2rem;">
-    <div class="col-sm-12 col-lg-12 col-md-12 col-12">
+    <div class="col-sm-3 col-lg-3 col-md-3 col-3">
 
         <button id="runButton" onclick="transcribeRecording()" class="transcribe_button">
             Transcribe
         </button>
+
+        <div class="col-sm-6 col-lg-6 col-md-6 col-6">
+            <div class="x_content">
+                <div class="row">
+                    <div class="col-sm-3 col-lg-3 col-md-3 col-3">
+                        <label for="hebrew">HE</label>
+                        <input type="radio" name="language" id="hebrew" value="he" checked="" required />
+                    </div>
+                    <div class="col-sm-3 col-lg-3 col-md-3 col-3">
+                        <label for="english">EN</label>
+                        <input type="radio" name="language" id="english" value="en" />
+                    </div>
+                </div>
+            </div>
+        </div>
 
     </div>
 </div>
@@ -196,12 +211,23 @@
 </script>
 <script>
     const transcription_result_el = document.getElementById("transcription_result");
+    var transcription_language = document.querySelectorAll('input[name="language"]');
 
     function transcribeRecording() {
         showLoader('Transcribing...');
         const url = "{% url 'main:transcribe' session_id=session.id %}";
+        // getting the language
+        for (var i = 0; i < transcription_language.length; i++) {
+            if (transcription_language[i].checked) {
+                selectedLanguage = transcription_language[i].value;
+                break;
+            }
+        }
+
         var formData = new FormData();
         formData.append("csrfmiddlewaretoken", document.querySelector('[name=csrfmiddlewaretoken]').value)
+        formData.append("language", selectedLanguage)
+
         $.ajax({
             url: url,
             type: "POST",
@@ -213,7 +239,7 @@
                     console.log(`M = ${message}`);
                     transcription_result_el.innerHTML = message.content;
                     hideLoader();
-                    // location.reload();
+                    transcribeBtn.classList.add('hidden');
                 }
                 else {
                     console.log(`>>> ${message.success}`);

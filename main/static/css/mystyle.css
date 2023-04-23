@@ -114,3 +114,8 @@
         opacity: 1;
       }
     }
+
+    input[type="radio"] {
+      width: 2rem;
+      height: 2rem;
+    }

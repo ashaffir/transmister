@@ -126,10 +126,12 @@ def transcribe(request, session_id):
         files = sorted(glob.glob(f"{session_path}/*.wav"), key=os.path.getmtime)
         if len(files) > 0:
             transcription_file = f"{session_path}/transcript_{session_id}.txt"
+            language = request.POST["language"]
+            print(f"{language=}")
             with open(transcription_file, "a") as txt_file:
                 for idx, file in enumerate(files, start=1):
                     try:
-                        txt = transcribe_api(file)
+                        txt = transcribe_api(file, language)
                     except Exception as e:
                         logger.error(f"<ALS>> Transcribe error: {e}")
                         return JsonResponse({"success": False, "content": f"{e}"})
