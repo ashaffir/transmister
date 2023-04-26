@@ -22,18 +22,6 @@
 
 <body class="login">
     <div>
-        {% if form.errors %}
-        <div class="alert alert-danger">
-            {% for field in form %}
-            {% for error in field.errors %}
-            {{ error|escape }}
-            {% endfor %}
-            {% endfor %}
-            {% for error in form.non_field_errors %}
-            {{ error|escape }}
-            {% endfor %}
-        </div>
-        {% endif %}
         <a class="hiddenanchor" id="signup"></a>
         <a class="hiddenanchor" id="signin"></a>
         <div class="login_wrapper">
