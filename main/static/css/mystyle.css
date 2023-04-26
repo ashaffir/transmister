@@ -119,3 +119,9 @@
       width: 2rem;
       height: 2rem;
     }
+
+    .inactive {
+      opacity: 0.5;
+      background-color: #ccc;
+      cursor: not-allowed;
+    }

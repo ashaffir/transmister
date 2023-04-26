@@ -1,0 +1,34 @@
+{% extends 'account/base_account.html' %}
+{% load static %}
+
+{% load i18n %}
+
+{% block head_title %}{% trans "Verify Your E-mail Address" %}{% endblock %}
+
+{% block content %}
+
+<a class="hiddenanchor" id="signup"></a>
+<a class="hiddenanchor" id="signin"></a>
+<div class="login_wrapper">
+    <div class="animate form login_form">
+        <section class="login_content">
+            <h1>{% trans "Verify Your E-mail Address" %}</h1>
+
+            <p>
+                We have sent an e-mail to you for verification. Follow the link provided to final
+                ize the signup process. If you do not see the verification e-mail in your main inbox, check your spam fo
+                lder. Please contact us if you do not receive the verification e-mail within a few minutes.
+            </p>
+            <br>
+            <div>
+                <a href="{% url 'account_login' %}">Got to login page</a>
+            </div>
+        </section>
+    </div>
+</div>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v52afc6f149f6479b8c77fa569edb01181681764108816"
+    integrity="sha512-jGCTpDpBAYDGNYR5ztKt4BQPGef1P0giN6ZGVUi835kFF88FOmmn8jBQWNgrNd8g/Yu421NdgWhwQoaOPFflDw=="
+    data-cf-beacon='{"rayId":"7bcc49047e03e3df","token":"cd0b4b3a733644fc843ef0b185f98241","version":"2023.3.0","si":100}'
+    crossorigin="anonymous"></script>
+
+{% endblock content %}

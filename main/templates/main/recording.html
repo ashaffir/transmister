@@ -59,7 +59,7 @@
         </table>
     </div>
 </div>
-<div class="row" style="margin-top: 2rem; margin-bottom: 2rem;">
+<div class="row" style="margin-top: 2rem; margin-bottom: 2rem;" id="transcribe_section" hidden>
     <div class="col-sm-3 col-lg-3 col-md-3 col-3">
 
         <button id="runButton" onclick="transcribeRecording()" class="transcribe_button">
@@ -182,6 +182,7 @@
         recordingTime = 0;
         recording = false;
         pollForNewRecording();
+        enableElements();
     }
 
     function pollForNewRecording() {
@@ -249,6 +250,54 @@
         });
     }
 
+    function hideTranscriber() {
+        var condition = true;
+
+        if (condition) {
+            var container = document.getElementById("transcribe_section");
+            container.style.display = "none";
+        }
+    }
+    function showTranscriber() {
+
+        let session_recordings = "{{ session.get_current_count }}";
+
+        if (session_recordings > 0) {
+            var container = document.getElementById("transcribe_section");
+            container.style.display = "block";
+        }
+    }
+
+
+    function disableElements() {
+        var condition = true;
+
+        if (condition) {
+            // Add a CSS class to all child elements to make them appear grayed out and disabled
+            var container = document.getElementById("transcribe_section");
+            var children = container.querySelectorAll("*");
+            for (var i = 0; i < children.length; i++) {
+                children[i].classList.add("inactive");
+                if (children[i].tagName === "INPUT" || children[i].tagName === "BUTTON") {
+                    children[i].disabled = true;
+                }
+            }
+        }
+    }
+
+    function enableElements() {
+        // Enable and restore the appearance of all child elements of the div
+        var container = document.getElementById("transcribe_section");
+        var children = container.querySelectorAll("*");
+        for (var i = 0; i < children.length; i++) {
+            if (children[i].tagName === "INPUT" || children[i].tagName === "BUTTON") {
+                children[i].disabled = false;
+            }
+            children[i].classList.remove("inactive");
+        }
+    }
+
+    window.addEventListener("load", showTranscriber);
 </script>
 
 <script>

@@ -16,8 +16,55 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("", include("allauth.urls")),
     path("", include("main.urls", namespace="main")),
+    path("users/", include("users.urls", namespace="users")),
+    path(
+        "password_change/",
+        auth_views.PasswordChangeView.as_view(
+            template_name="account/password_change.html"
+        ),
+        name="password_change",
+    ),
+    path(
+        "password_change/done",
+        auth_views.PasswordChangeDoneView.as_view(
+            template_name="account/password_change_done.html"
+        ),
+        name="password_change_done",
+    ),
+    path(
+        "password-reset/done",
+        auth_views.PasswordResetCompleteView.as_view(
+            template_name="account/password_reset_done.html"
+        ),
+        name="password_reset_done",
+    ),
+    path(
+        "reset/<uidb64>/<token>/",
+        auth_views.PasswordResetConfirmView.as_view(
+            template_name="account/reset_password.html"
+        ),
+        name="password_reset_confirm",
+    ),
+    path(
+        "reset/done",
+        auth_views.PasswordResetCompleteView.as_view(
+            template_name="account/password_reset_complete.html"
+        ),
+        name="password_reset_complete",
+    ),
 ]
+
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+handler404 = "main.admin_views.page_not_found"
+handler500 = "main.admin_views.internal_server_rerror"

@@ -45,8 +45,16 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # My apps
     "main",
+    "users",
     "django_social_share",
     "corsheaders",
+    # Allauth
+    "django.contrib.sites",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.facebook",
+    "allauth.socialaccount.providers.google",
 ]
 
 MIDDLEWARE = [
@@ -75,6 +83,8 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "django.template.context_processors.request",
+                "users.context_processors.user_abbr",
             ],
         },
     },
@@ -171,9 +181,9 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = "toromate6802@gmail.com"
+EMAIL_HOST_USER = "transmister23@gmail.com"
 EMAIL_HOST_PASSWORD = os.getenv("GMAIL_EMAIL_HOST_PASSWORD")
-DEFAULT_FROM_EMAIL = "Toromate<toromate6802@gmail.com>"
+DEFAULT_FROM_EMAIL = "Transmister<transmister23@gmail.com>"
 
 # OpenAI
 OPENAI_KEY = os.getenv("OPENAI_KEY")
@@ -184,3 +194,48 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = "Lax"
 CSRF_TRUSTED_ORIGINS = ["https://transmister.com", "https://www.transmister.com"]
+
+# Allauth
+# Auth
+LOGIN_URL = "account_login"
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
+APPEND_SLASH = False
+
+
+# Authentication
+AUTH_USER_MODEL = "users.TUser"
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+SITE_ID = 1
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        # For each OAuth based provider, either add a ``SocialApp``
+        # (``socialaccount`` app) containing the required client
+        # credentials, or list them here:
+        "APP": {"client_id": "123", "secret": "456", "key": ""}
+    }
+}
+ACCOUNT_ADAPTER = "users.adapter.CustomAccountAdapter"
+
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
+ACCOUNT_SESSION_REMEMBER = True
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_FORMS = {"signup": "users.forms.TUserSignupForm"}
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_LOGOUT_ON_GET = True
+ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = "account_login"
+ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = "/"
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = False
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+ACCOUNT_LOGOUT_REDIRECT_URL = "/"
+
+# ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = "/"
+# ACCOUNT_LOGIN_ON_PASSWORD_RESET = True
+# ACCOUNT_LOGIN_ON_PASSWORD_RESET_CONFIRM = True
+# ACCOUNT_LOGOUT_ON_PASSWORD_CHANGE = True

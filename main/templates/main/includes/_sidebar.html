@@ -16,7 +16,9 @@
             </div>
             <div class="profile_info">
                 <span>Welcome,</span>
-                <h2>Adi</h2>
+                <a href="{% url 'users:profile' %}">
+                    <h2>{{ user_abbr }}</h2>
+                </a>
             </div>
         </div>
         <!-- /menu profile quick info -->
@@ -30,12 +32,16 @@
                     <li><a href="{% url 'main:home' %}"><i class="fa fa-home"></i> Home </a></li>
                     <li><a href="{% url 'main:user-transcriptions' %}"><i class="fa fa-edit"></i> My Transcriptions</a>
                     </li>
+                    <li><a href="{% url 'users:contact-us' %}"><i class="fa fa-phone"></i> Contact Us </a></li>
+
                 </ul>
+                {% if user.is_superuser %}
                 <h3>General</h3>
                 <ul class="nav side-menu">
                     <li><a href="https://colorlib.com/polygon/gentelella/fixed_footer.html" target="_blank">
                             <i class="fa fa-gear"></i> Theme reference </a></li>
                 </ul>
+                {% endif %}
             </div>
         </div>
         <!-- /sidebar menu -->
@@ -51,7 +57,7 @@
             <a data-toggle="tooltip" data-placement="top" title="Lock">
                 <span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
             </a>
-            <a data-toggle="tooltip" data-placement="top" title="Logout" href="login.html">
+            <a data-toggle="tooltip" data-placement="top" title="Logout" href="{% url 'account_logout' %}">
                 <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
             </a>
         </div>

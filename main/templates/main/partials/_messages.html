@@ -1,0 +1,36 @@
+{% load static %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+<!-- <link href="{% static 'css/specials.css' %}" rel="stylesheet"> -->
+<style>
+    .alert-error {
+        --cui-alert-color: #893232;
+        --cui-alert-bg: #fadddd;
+        --cui-alert-border-color: #f7cbcb;
+    }
+</style>
+{% for message in messages %}
+<div class="alert alert-{{ message.tags }} alert-dismissible display-message" role="alert" style="color: black;">
+    <button class="btn-close" type="button" data-coreui-dismiss="alert" aria-label="Close"></button>
+    </button>
+    {% if form.errors %}
+    {% for field in form %}
+    {% if field.errors %}
+    {{ message }} {{ field.errors }}
+    {% endif %}
+    {% endfor %}
+    {% else %}
+    {{ message }}
+    {% endif %}
+</div>
+{% endfor %}
+
+
+
+<script>
+    $(document).ready(function () {
+        setTimeout(function () {
+            // $(".display-message").hide('blind', {}, 300)
+            $(".display-message").hide();
+        }, 5000);
+    });
+</script>

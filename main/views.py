@@ -7,16 +7,18 @@ from django.views import View
 from django.utils.timezone import make_aware
 from django.contrib import messages
 from django.http.response import JsonResponse
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import get_object_or_404, render
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from transmister.settings import MEDIA_ROOT, MEDIA_URL
 from .models import RecodringSession, Recording, Transcription, Control
 from .utils import convert_aac_to_wav, transcribe_api, logger
 
 
-class HomeView(TemplateView):
+class HomeView(LoginRequiredMixin, TemplateView):
     """Home page"""
 
     template_name = "main/recording.html"
@@ -34,7 +36,7 @@ class HomeView(TemplateView):
         return render(request, self.template_name, context=context)
 
 
-class UserTranscriptionsView(TemplateView):
+class UserTranscriptionsView(LoginRequiredMixin, TemplateView):
     """List of all current recordings that the user has"""
 
     template_name = "main/user_transcriptions.html"
@@ -46,6 +48,7 @@ class UserTranscriptionsView(TemplateView):
         return context
 
 
+@login_required
 def upload_audio(request, session_id):
     if request.POST:
         try:
@@ -71,6 +74,7 @@ def upload_audio(request, session_id):
         return JsonResponse({"success": True})
 
 
+@login_required
 def check_recordings(request, session_id: str, current_count: int):
     """Checks the number of recordings in the session and returns True if there are more
         recordings than the current_count
@@ -87,12 +91,14 @@ def check_recordings(request, session_id: str, current_count: int):
         return JsonResponse({"success": False})
 
 
+@login_required
 def recordings(request, session_id):
     context = {}
     context["recordings"] = Recording.objects.filter(session=session_id)
     return render(request, "main/partials/recordings.html", context=context)
 
 
+@login_required
 def clear_session(request, session_id):
     session = get_object_or_404(RecodringSession, id=session_id)
     recordings_list = Recording.objects.filter(session=session_id)
@@ -106,6 +112,7 @@ def clear_session(request, session_id):
     return JsonResponse({"success": True})
 
 
+@login_required
 def delete_recording(request):
     recording = get_object_or_404(Recording, id=request.GET.get("recording_id"))
     session = get_object_or_404(RecodringSession, id=recording.session)
@@ -116,6 +123,7 @@ def delete_recording(request):
     return JsonResponse({"success": True})
 
 
+@login_required
 def transcribe(request, session_id):
     if request.method == "POST":
         curr_session = RecodringSession.objects.get(id=session_id)
@@ -127,7 +135,6 @@ def transcribe(request, session_id):
         if len(files) > 0:
             transcription_file = f"{session_path}/transcript_{session_id}.txt"
             language = request.POST["language"]
-            print(f"{language=}")
             with open(transcription_file, "a") as txt_file:
                 for idx, file in enumerate(files, start=1):
                     try:

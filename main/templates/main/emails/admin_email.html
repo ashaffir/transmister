@@ -1,0 +1,63 @@
+{% load static %}
+{% load i18n %}
+
+<!doctype html>
+<html lang="en">
+
+<head>
+</head>
+
+<body style="padding: 0px; margin: 0px; background-color: #F7F8F9;">
+    <div class="main-wrapper"
+        style="box-sizing: border-box; -webkit-box-sizing: border-box; -moz-box-sizing: border-box; -o-box-sizing: border-box; -ms-box-sizing: border-box; display: block; width: 634px; padding: 30px 30px; background-color: #ffffff; border-radius: 2px; margin: auto;">
+        {% if message.email_type == "new_user_signup" %}
+        <div class="header-sec"
+            style="padding: 15px; background-color:#111111; border-bottom: 1px solid rgba(151, 151, 151, .16);">
+            <!-- <img src="{{domain}}{% static 'images/dndsos-logo-black.png' %}" alt="Logo" style="max-width: 20%;"> -->
+            <span style="color: white;">New User</span>
+        </div>
+        <div class="content-sec">
+            <p
+                style="font-size: 14px; font-family: sans-serif; line-height: 24px; color: rgba(19, 19, 19, .64); margin-top: 30px; margin-bottom: 30px;">
+                <strong>Username:</strong> {{ message.user }}
+            </p>
+            <p
+                style="font-size: 14px; font-family: sans-serif; line-height: 24px; color: rgba(19, 19, 19, .64); margin-top: 30px; margin-bottom: 30px;">
+                <strong>User type:</strong> {{ message.user_type }}
+            </p>
+            <div class="link-sec"
+                style="padding: 15px; background-color: rgba(216, 216, 216, .2); border: 1px solid rgba(151, 151, 151, .2); border-radius: 4px; word-break: break-all; margin-bottom: 30px;">
+                <p
+                    style="font-size: 14px; font-family: sans-serif; line-height: 24px; color: rgba(19, 19, 19, .64); margin: 0px;">
+                    {% trans 'If it was a mistake, just ignore this email' %}.</p>
+            </div>
+        </div>
+        {% elif message.email_type == "contact_us" or message.email_type == "new_user_signup" %}
+        <div class="content-sec">
+            <p
+                style="font-size: 14px; font-family: sans-serif; line-height: 24px; color: rgba(19, 19, 19, .64); margin-top: 30px; margin-bottom: 30px;">
+                <strong>Username:</strong> {{ message.user }}
+            </p>
+            <p
+                style="font-size: 14px; font-family: sans-serif; line-height: 24px; color: rgba(19, 19, 19, .64); margin-top: 30px; margin-bottom: 30px;">
+                <strong>Email:</strong> {{ message.email }}
+            </p>
+            <p
+                style="font-size: 14px; font-family: sans-serif; line-height: 24px; color: rgba(19, 19, 19, .64); margin-top: 30px; margin-bottom: 30px;">
+                <strong>Subject:</strong> {{ message.subject }}
+            </p>
+            <p
+                style="font-size: 14px; font-family: sans-serif; line-height: 24px; color: rgba(19, 19, 19, .64); margin-top: 30px; margin-bottom: 30px;">
+                <strong>Message:</strong> {{ message.message }}
+            </p>
+        </div>
+        {% endif %}
+        <div class="footer-sec" style="padding-top: 30px; border-top: 1px solid rgba(151, 151, 151, .16);">
+            <p
+                style="font-size: 14px; font-family: sans-serif; line-height: 24px; color: rgba(19, 19, 19, .64); margin: 0px;">
+                {% trans 'This is an automatically generated email, please do not reply' %}.</p>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -11,3 +11,4 @@ Django voice recorder:
 Download: https://themewagon.com/themes/free-bootstrap-3-admin-dashboard-template/
 
 ## Other Installations
+* Google email host password: https://myaccount.google.com/apppasswords
