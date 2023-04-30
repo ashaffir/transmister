@@ -8,3 +8,4 @@ django-social-share
 django-cors-headers
 django-allauth
 django-ckeditor
+pydub

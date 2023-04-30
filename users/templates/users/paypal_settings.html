@@ -1,0 +1,92 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block css %}
+<link href="{% static 'css/mystyle.css' %}" rel="stylesheet">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+{% endblock css %}
+{% block title %}
+PayPal Payment
+{% endblock title %}
+{% block content %}
+{% include 'users/modals/payment_modal.html' %}
+<div class="row">
+    <div class="col-sm-12">
+        <h1>PayPal Settings</h1>
+    </div>
+</div>
+<div class="x_panel">
+    <div class="x_title">
+        <div class="clearfix"></div>
+    </div>
+    <div class="x_content">
+        <form action="{% url 'users:paypal-settings' %}" enctype="multipart/form-data" method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-2 col-md-2 col-lg-2 col-sm-2">
+                    <input class="form-control" type="text" name="product_name" placeholder="Product name">
+                </div>
+                <div class="col-2 col-md-2 col-lg-2 col-sm-2">
+                    <input class="form-control" type="text" name="product_description"
+                        placeholder="Product description">
+                </div>
+                <div class="col-1 col-md-1 col-lg-1 col-sm-1">
+                    <button name="create_product" type="submit" class="btn btn-sm btn-secondary">Create Product</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script>
+    $(document).ready(function () {
+        $('#pay-with-paypal').on('click', function () {
+            $.ajax({
+                url: '{% url "users:paypal-settings" %}',
+                type: 'POST',
+                dataType: 'json',
+                data: {},
+                success: function (response) {
+                    if (response.url) {
+                        window.location.href = response.url;
+                    } else {
+                        alert('Error processing the payment.');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert('Error processing the payment.');
+                },
+                beforeSend: function (xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                }
+            });
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const paymentStatus = urlParams.get('payment_status');
+
+        if (paymentStatus) {
+            let message = '';
+
+            if (paymentStatus === 'success') {
+                message = 'Payment successful!';
+            } else if (paymentStatus === 'error') {
+                message = 'Error executing the payment.';
+            } else if (paymentStatus === 'invalid') {
+                message = 'Invalid payment request.';
+            }
+
+            $('#paymentModalBody').text(message);
+            $('#paymentModal').modal('show');
+        }
+    });
+
+</script>
+
+{% endblock js %}

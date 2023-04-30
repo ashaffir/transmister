@@ -2,6 +2,7 @@ import os
 import subprocess
 import openai
 import logging
+from pydub import AudioSegment
 from django.core.mail import EmailMultiAlternatives
 
 from django.core.mail import send_mail
@@ -41,6 +42,9 @@ def transcribe_api(audio_file, language: str = "he"):
     try:
         transcript = openai.Audio.transcribe("whisper-1", audio_file, language=language)
     except Exception as e:
+        print(f"Error transcribing audio file: {e}")
+        logger.error(f"Error transcribing audio file: {e}")
+        alert_admin(f"Error transcribing audio file: {e}")
         raise e
 
     user_text = f"{transcript['text']}"
@@ -68,3 +72,12 @@ def convert_aac_to_wav(input_file, output_file):
     except subprocess.CalledProcessError as e:
         print(f"Error converting audio file: {e}")
         return False
+
+
+def get_audio_length(audio_file):
+    """Calculating the duration of the audio for the transcription"""
+    audio = AudioSegment.from_file(audio_file)
+    duration_ms = len(audio)
+    duration_s = duration_ms / 1000
+    duration_min = duration_s / 60
+    return duration_min

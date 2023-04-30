@@ -6,18 +6,24 @@ from django.db import models
 from django.urls.base import reverse
 from django.core.files.base import ContentFile
 
+from users.models import TUser
 from .utils import logger
 
 
 def recording_path(instance, filename):
-    return f"recordings/{instance.session}/{instance.pk}.wav"
+    return f"recordings/user_{instance.user.id}/{instance.session}/{instance.pk}.wav"
 
 
 class Recording(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(TUser, on_delete=models.CASCADE, related_name="recordings")
+
     created = models.DateTimeField(auto_now_add=True)
     session = models.CharField(max_length=100)
-    voice_recording = models.FileField(upload_to=recording_path)
+    voice_recording = models.FileField(
+        upload_to=recording_path,
+        max_length=300,
+    )
     audio_type = models.CharField(max_length=50)
     language = models.CharField(max_length=50, null=True, blank=True)
 
@@ -80,6 +86,7 @@ class Transcription(models.Model):
     session = models.CharField(max_length=100)
     file = models.FileField()
     language = models.CharField(max_length=50, null=True, blank=True)
+    duration = models.FloatField()
 
     class Meta:
         verbose_name = "Transcription"

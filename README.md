@@ -1,6 +1,9 @@
 # Voice assistant
 
 ## Reference 
+## OpenAI 
+* https://openai.com/pricing
+
 * code
 https://github.com/hackingthemarkets/qa-assistant-eleven-labs-voice-cloning
 

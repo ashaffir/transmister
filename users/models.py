@@ -1,15 +1,20 @@
+import uuid
 from typing import Iterable, Optional
+from ckeditor.fields import RichTextField
 from django.contrib.auth.models import AbstractUser, User
 from django.db import models
-from ckeditor.fields import RichTextField
+from django.conf import settings
 
 
 class TUser(AbstractUser):
     """Custom user model"""
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     joined = models.DateTimeField(auto_now_add=True)
     team = models.CharField(max_length=100, blank=True, null=True)
     categories_of_interest = models.JSONField(default=list, blank=True)
+
+    balance = models.FloatField(default=0.075)
 
     class Meta:
         verbose_name = "T User"
@@ -17,6 +22,10 @@ class TUser(AbstractUser):
 
     def __str__(self) -> str:
         return f"{self.email}"
+
+    def get_available_minutes(self):
+        """Return the number of minutes available for this user"""
+        return self.balance / settings.PRICE_PER_MINUTE
 
 
 class ContactUs(models.Model):

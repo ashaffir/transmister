@@ -32,14 +32,18 @@
                     <li><a href="{% url 'main:home' %}"><i class="fa fa-home"></i> Home </a></li>
                     <li><a href="{% url 'main:user-transcriptions' %}"><i class="fa fa-edit"></i> My Transcriptions</a>
                     </li>
+                    <li><a href="{% url 'users:profile' %}"><i class="fa fa-user"></i> Profile </a></li>
                     <li><a href="{% url 'users:contact-us' %}"><i class="fa fa-phone"></i> Contact Us </a></li>
 
                 </ul>
                 {% if user.is_superuser %}
-                <h3>General</h3>
+                <h3>Admin</h3>
                 <ul class="nav side-menu">
                     <li><a href="https://colorlib.com/polygon/gentelella/fixed_footer.html" target="_blank">
                             <i class="fa fa-gear"></i> Theme reference </a></li>
+                    <li><a href="{% url 'users:paypal-settings' %}">
+                            <i class="fa fa-gear"></i> Paypal Settings</a></li>
+
                 </ul>
                 {% endif %}
             </div>

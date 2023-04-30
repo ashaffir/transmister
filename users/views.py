@@ -1,6 +1,6 @@
 import logging
 from typing import Any, Dict
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.views.generic import TemplateView, FormView
 from django.views import generic
@@ -11,10 +11,17 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
+from django.urls import reverse
 
+from main.models import Control
 from .models import TUser
 from .utils import alert_admin, send_email, logger
 from .forms import ContactUsForm
+from .paypal_utils import (
+    create_paypal_order,
+    capture_paypal_order,
+    create_paypal_product,
+)
 
 
 class Home(TemplateView):
@@ -39,22 +46,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
 
     def post(self, request):
         user = request.user
-        if "add_category" in request.POST:
-            new_category = request.POST.get("categories_select")
-            if new_category not in request.user.categories_of_interest:
-                request.user.categories_of_interest.append(new_category)
-            request.user.save()
-        elif "delete_category" in request.POST:
-            category_to_delete = request.POST.get(f"user_category")
-            request.user.categories_of_interest.remove(category_to_delete)
-            request.user.save()
-        elif "update_personals" in request.POST:
-            user.first_name = request.POST.get("first_name")
-            user.last_name = request.POST.get("last_name")
-            user.team = request.POST.get("team")
-            user.save()
-            messages.success(request, f"User data updated successfuly.")
-        elif "update_password" in request.POST:
+        if "change_password" in request.POST:
             current_password = request.POST.get("cur_password")
             if user.check_password(current_password):
                 new_pass = request.POST.get("password1")
@@ -65,6 +57,86 @@ class ProfileView(LoginRequiredMixin, TemplateView):
                 messages.error(request, f"Current passworf is wrong. Update failed")
 
         return redirect(request.META["HTTP_REFERER"])
+
+
+class UpgradeView(TemplateView):
+    """Page for collecting users payment information for upgrading to paid plan"""
+
+    template_name = "users/upgrade.html"
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        amount = request.POST.get("amount")
+        currency = "USD"
+        return_url = request.build_absolute_uri(reverse("users:execute-payment"))
+        cancel_url = request.build_absolute_uri(reverse("users:cancel-payment"))
+
+        try:
+            order = create_paypal_order(
+                request, amount, currency, return_url, cancel_url
+            )
+            approval_url = None
+            for link in order["links"]:
+                if link["rel"] == "approve":
+                    approval_url = link["href"]
+                    user.balance += float(amount)
+                    user.save()
+            return JsonResponse({"url": approval_url}, status=200)
+        except Exception as e:
+            print(e)
+            return JsonResponse({"error": "Error creating the payment"}, status=400)
+
+
+class PayPalSettingsView(TemplateView):
+    """Paypal settings view"""
+
+    template_name = "users/paypal_settings.html"
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def post(self, request, **kwargs):
+        if "create_product" in request.POST:
+            name = request.POST.get("product_name")
+            # price = request.POST.get("price")
+            # currency = request.POST.get("currency")
+            try:
+                product = Control.objects.create(
+                    name="paypal_product", json_value=create_paypal_product(name)
+                )
+
+                messages.success(
+                    request, f"Paypal product {product} created successfuly."
+                )
+            except Exception as e:
+                logger.error(e)
+                messages.error(request, f"Error creating the product. Error: {e}")
+        return redirect(request.META["HTTP_REFERER"])
+
+
+def execute_payment(request):
+    token = request.GET.get("token", None)
+    payer_id = request.GET.get("PayerID", None)
+    response_data = {"status": "error"}
+
+    if token and payer_id:
+        try:
+            capture_paypal_order(token)
+            return redirect(f"{reverse('users:upgrade')}?payment_status=success")
+        except Exception as e:
+            logger.error(e)
+            return redirect(f"{reverse('users:upgrade')}?payment_status=error")
+    else:
+        return redirect(f"{reverse('users:upgrade')}?payment_status=invalid")
+
+
+def cancel_payment(request):
+    return HttpResponse("Payment canceled.")
 
 
 class ContactUs(FormView):

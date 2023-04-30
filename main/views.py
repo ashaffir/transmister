@@ -2,6 +2,7 @@ import os
 import glob
 from datetime import datetime
 from typing import Any, Dict
+
 from django.views.generic import TemplateView
 from django.views import View
 from django.utils.timezone import make_aware
@@ -12,10 +13,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.conf import settings
 
 from transmister.settings import MEDIA_ROOT, MEDIA_URL
 from .models import RecodringSession, Recording, Transcription, Control
-from .utils import convert_aac_to_wav, transcribe_api, logger
+from .utils import convert_aac_to_wav, transcribe_api, get_audio_length, logger
 
 
 class HomeView(LoginRequiredMixin, TemplateView):
@@ -56,6 +58,7 @@ def upload_audio(request, session_id):
             audio_blob = request.FILES["audio_blob"]
             device = request.POST["device"]
             recording = Recording(
+                user=request.user,
                 session=session_id,
                 voice_recording=audio_blob,
                 audio_type=device,
@@ -125,27 +128,37 @@ def delete_recording(request):
 
 @login_required
 def transcribe(request, session_id):
+    user = request.user
     if request.method == "POST":
         curr_session = RecodringSession.objects.get(id=session_id)
-        session_path = f"{MEDIA_ROOT}/recordings/{session_id}"
+        session_path = f"{MEDIA_ROOT}/recordings/user_{user.id}/{session_id}"
         # Creating a new session
         RecodringSession.objects.create()
 
         files = sorted(glob.glob(f"{session_path}/*.wav"), key=os.path.getmtime)
+        total_audio_length = 0
         if len(files) > 0:
             transcription_file = f"{session_path}/transcript_{session_id}.txt"
             language = request.POST["language"]
             with open(transcription_file, "a") as txt_file:
                 for idx, file in enumerate(files, start=1):
                     try:
-                        txt = transcribe_api(file, language)
+                        total_audio_length += get_audio_length(file)
+
+                        if user.get_available_minutes() < total_audio_length:
+                            return JsonResponse(
+                                {"success": False, "content": f"balance"}
+                            )
+
+                        else:
+                            txt = transcribe_api(file, language)
                     except Exception as e:
                         logger.error(f"<ALS>> Transcribe error: {e}")
                         return JsonResponse({"success": False, "content": f"{e}"})
 
                     txt_file.writelines(f"{idx}- {txt}\n")
 
-                "Adding blank rows"
+                # Adding blank rows
                 blank_rows, created = Control.objects.get_or_create(name="blank_rows")
                 if created:
                     blank_rows.int_value = 3
@@ -154,7 +167,18 @@ def transcribe(request, session_id):
                 for i in range(blank_rows.int_value):
                     txt_file.writelines("\n")
 
-            Transcription.objects.create(file=transcription_file, session=session_id)
+            transcription = Transcription.objects.create(
+                file=transcription_file, session=session_id, duration=total_audio_length
+            )
+
+            # Cost Calculation
+            transcription_cost = total_audio_length * settings.PRICE_PER_MINUTE
+            transcription.cost = round(transcription_cost, 3)
+            transcription.save()
+
+            # Deduct transcription cost from user account
+            user.balance -= transcription_cost
+            user.save()
 
             # closing current session
             curr_session.ended = make_aware(datetime.now())

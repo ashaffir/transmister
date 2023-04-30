@@ -59,29 +59,33 @@
         </table>
     </div>
 </div>
+<hr>
 <div class="row" style="margin-top: 2rem; margin-bottom: 2rem;" id="transcribe_section" hidden>
-    <div class="col-sm-3 col-lg-3 col-md-3 col-3">
-
-        <button id="runButton" onclick="transcribeRecording()" class="transcribe_button">
-            Transcribe
-        </button>
-
-        <div class="col-sm-6 col-lg-6 col-md-6 col-6">
-            <div class="x_content">
-                <div class="row">
-                    <div class="col-sm-3 col-lg-3 col-md-3 col-3">
-                        <label for="hebrew">HE</label>
-                        <input type="radio" name="language" id="hebrew" value="he" checked="" required />
-                    </div>
-                    <div class="col-sm-3 col-lg-3 col-md-3 col-3">
-                        <label for="english">EN</label>
-                        <input type="radio" name="language" id="english" value="en" />
-                    </div>
+    <div class="col-sm-2 col-lg-1 col-md-1 col-1">
+        <div class="x_content">
+            <div class="row">
+                <div class="col-sm-6 col-lg-6 col-md-6 col-6">
+                    <label for="hebrew">HE</label>
+                    <input type="radio" name="language" id="hebrew" value="he" checked="" required />
+                </div>
+                <div class="col-sm-6 col-lg-6 col-md-6 col-6">
+                    <label for="english">EN</label>
+                    <input type="radio" name="language" id="english" value="en" />
                 </div>
             </div>
         </div>
-
     </div>
+    <div class="col-sm-3 col-lg-2 col-md-2 col-2">
+        <button id="runButton" onclick="transcribeRecording()" class="transcribe_button">
+            Transcribe
+        </button>
+    </div>
+    <div class="col-sm-3 col-lg-3 col-md-3 col-3">
+        <a href="{% url 'users:upgrade' %}" class="btn btn-primary btn-sm hidden" id="topUpButton">
+            Top-Up your account
+        </a>
+    </div>
+
 </div>
 
 <div class="row w-100">
@@ -213,6 +217,7 @@
 <script>
     const transcription_result_el = document.getElementById("transcription_result");
     var transcription_language = document.querySelectorAll('input[name="language"]');
+    const top_up_button_ele = document.getElementById("topUpButton");
 
     function transcribeRecording() {
         showLoader('Transcribing...');
@@ -242,9 +247,14 @@
                     hideLoader();
                     transcribeBtn.classList.add('hidden');
                 }
-                else {
-                    console.log(`>>> ${message.success}`);
+                else if (message.content == "balance") {
+                    alert("Error transcribing. You don't have enough in your balance");
+                    hideLoader();
+                    top_up_button_ele.classList.remove("hidden");
+                } else {
                     alert("Error transcribing. Contact support");
+                    hideLoader();
+                    transcribeBtn.classList.add('hidden');
                 }
             }
         });

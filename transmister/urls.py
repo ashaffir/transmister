@@ -20,10 +20,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 
+
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", include("allauth.urls")),
     path("", include("main.urls", namespace="main")),
+    path("", include("allauth.urls")),
     path("users/", include("users.urls", namespace="users")),
     path(
         "password_change/",

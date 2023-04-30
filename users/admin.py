@@ -8,6 +8,7 @@ class TUserAdmin(admin.ModelAdmin):
         "id",
         "joined",
         "email",
+        "balance",
         "is_active",
     )
     search_fields = (
