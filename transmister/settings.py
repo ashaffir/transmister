@@ -187,8 +187,8 @@ DEFAULT_FROM_EMAIL = "Transmister<transmister23@gmail.com>"
 
 # OpenAI
 OPENAI_KEY = os.getenv("OPENAI_KEY")
-WHISPER_PRICE_PER_MINUTE = 0.006
-PRICE_MULTIPLIER = 12.5
+WHISPER_PRICE_PER_MINUTE = os.getenv("WHISPER_PRICE_PER_MINUTE ")
+PRICE_MULTIPLIER = os.getenv("PRICE_MULTIPLIER")
 PRICE_PER_MINUTE = WHISPER_PRICE_PER_MINUTE * PRICE_MULTIPLIER
 
 # SSL
@@ -199,7 +199,6 @@ CSRF_COOKIE_SAMESITE = "Lax"
 CSRF_TRUSTED_ORIGINS = ["https://transmister.com", "https://www.transmister.com"]
 
 # Allauth
-# Auth
 LOGIN_URL = "account_login"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
