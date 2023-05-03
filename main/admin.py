@@ -8,7 +8,8 @@ class RecordAdmin(admin.ModelAdmin):
     list_display = [
         "id",
         "created",
-        "language",
+        "user",
+        "duration",
     ]
     ordering = ["-created"]
 
@@ -18,7 +19,7 @@ class TranscriptioAdmin(admin.ModelAdmin):
     list_display = [
         "id",
         "created",
-        "file",
+        "user",
         "language",
     ]
     search_fields = [
@@ -31,10 +32,11 @@ class TranscriptioAdmin(admin.ModelAdmin):
 class RecordingSessionAdmin(admin.ModelAdmin):
     list_display = [
         "id",
+        "user",
         "started",
         "ended",
     ]
-    ordering = ("-started",)
+    ordering = ("-ended",)
 
 
 @admin.register(Control)

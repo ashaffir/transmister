@@ -2,6 +2,11 @@
 {% load static %}
 {% block css %}
 <link href="{% static 'css/mystyle.css' %}" rel="stylesheet">
+<style>
+    .recording {
+        font-size: 2rem;
+    }
+</style>
 {% endblock css %}
 {% block content %}
 <div id="loader-container">
@@ -12,82 +17,79 @@
         <div id="loader"></div>
     </div>
 </div>
-<div class="row">
-    <div class="col-sm-12 col-lg-12 col-md-12 col-12">
-        <h1>Record and transcribe</h1>
-        <h4>Session: {{ session.id }}</h4>
-    </div>
-</div>
-<div class="row mb-5">
-    <div class="col-sm-3 col-lg-3 col-md-3 col-3">
-        <button id="record-button" class="record_button">Record</button>
-    </div>
-</div>
-<div class="row mb-5">
-    <div class="col-12 col-sm-12 col-lg-12 col-md-12" id="recordings">
-        <style>
-            .recording {
-                font-size: 2rem;
-            }
-        </style>
+<section id="active_recording_section">
 
-        <table class="table">
-            <thead>
-                <th>Recording Time</th>
-                <th></th>
-                <th></th>
-            </thead>
-            <tbody>
-                {% for record in recordings %}
-                <tr>
-                    <td>
-                        {{ record.created }}
-                    </td>
-                    <td>
-                        <a href="{{ record.voice_recording.url }}">
-                            <i class="fa fa-play-circle-o fa-2x"></i>
-                        </a>
-                    </td>
-                    <td>
-                        <a href="#">
-                            <i class="fa fa-trash fa-2x" onclick="deleteRecording('{{ record.id }}')"></i>
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="row">
+        <div class="col-sm-12 col-lg-12 col-md-12 col-12">
+            <h1>Record and transcribe </h1>
+            <h4>Session: {{ session.id }}</h4>
+        </div>
     </div>
-</div>
-<hr>
-<div class="row" style="margin-top: 2rem; margin-bottom: 2rem;" id="transcribe_section" hidden>
-    <div class="col-sm-2 col-lg-1 col-md-1 col-1">
-        <div class="x_content">
-            <div class="row">
-                <div class="col-sm-6 col-lg-6 col-md-6 col-6">
-                    <label for="hebrew">HE</label>
-                    <input type="radio" name="language" id="hebrew" value="he" checked="" required />
-                </div>
-                <div class="col-sm-6 col-lg-6 col-md-6 col-6">
-                    <label for="english">EN</label>
-                    <input type="radio" name="language" id="english" value="en" />
+    <div class="row mb-5">
+        <div class="col-sm-3 col-lg-3 col-md-3 col-3">
+            <button id="record-button" class="record_button">Record</button>
+        </div>
+    </div>
+    <div class="row mb-5">
+        <div class="col-12 col-sm-12 col-lg-12 col-md-12" id="recordings">
+            <table class="table">
+                <thead>
+                    <th>Recording Time</th>
+                    <th></th>
+                    <th></th>
+                </thead>
+                <tbody>
+                    {% for record in recordings %}
+                    <tr>
+                        <td>
+                            {{ record.created }}
+                        </td>
+                        <td>
+                            <a href="{{ record.voice_recording.url }}">
+                                <i class="fa fa-play-circle-o fa-2x"></i>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="#">
+                                <i class="fa fa-trash fa-2x" onclick="deleteRecording('{{ record.id }}')"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <hr>
+    <div class="row" style="margin-top: 2rem; margin-bottom: 2rem;" id="transcribe_section" hidden>
+        <div class="col-sm-2 col-lg-1 col-md-1 col-1">
+            <div class="x_content">
+                <div class="row">
+                    <div class="col-sm-6 col-lg-6 col-md-6 col-6">
+                        <label for="hebrew">HE</label>
+                        <input type="radio" name="language" id="hebrew" value="he" checked="" required />
+                    </div>
+                    <div class="col-sm-6 col-lg-6 col-md-6 col-6">
+                        <label for="english">EN</label>
+                        <input type="radio" name="language" id="english" value="en" />
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="col-sm-3 col-lg-2 col-md-2 col-2">
-        <button id="runButton" onclick="transcribeRecording()" class="transcribe_button">
-            Transcribe
-        </button>
-    </div>
-    <div class="col-sm-3 col-lg-3 col-md-3 col-3">
-        <a href="{% url 'users:upgrade' %}" class="btn btn-primary btn-sm hidden" id="topUpButton">
-            Top-Up your account
-        </a>
+        <div class="col-sm-3 col-lg-2 col-md-2 col-2">
+            <button id="runButton" onclick="transcribeRecording()" class="transcribe_button">
+                Transcribe
+            </button>
+        </div>
+        <div class="col-sm-3 col-lg-3 col-md-3 col-3">
+            <a href="{% url 'users:upgrade' %}" class="btn btn-primary btn-sm hidden" id="topUpButton">
+                Top-Up your account
+            </a>
+        </div>
+
     </div>
 
-</div>
-
+</section>
 <div class="row w-100">
     <div class="col-12">
         <div class="x_panel">
@@ -218,6 +220,7 @@
     const transcription_result_el = document.getElementById("transcription_result");
     var transcription_language = document.querySelectorAll('input[name="language"]');
     const top_up_button_ele = document.getElementById("topUpButton");
+    const active_recording_section_ele = document.getElementById("active_recording_section");
 
     function transcribeRecording() {
         showLoader('Transcribing...');
@@ -242,9 +245,9 @@
             contentType: false,
             success: function (message) {
                 if (message.success) {
-                    console.log(`M = ${message}`);
                     transcription_result_el.innerHTML = message.content;
                     hideLoader();
+                    active_recording_section_ele.classList.add('hidden');
                     transcribeBtn.classList.add('hidden');
                 }
                 else if (message.content == "balance") {

@@ -25,7 +25,7 @@ class Recording(models.Model):
         max_length=300,
     )
     audio_type = models.CharField(max_length=50)
-    language = models.CharField(max_length=50, null=True, blank=True)
+    duration = models.FloatField()
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -82,6 +82,9 @@ class Recording(models.Model):
 
 class Transcription(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(
+        TUser, on_delete=models.CASCADE, related_name="transcriptions"
+    )
     created = models.DateTimeField(auto_now_add=True)
     session = models.CharField(max_length=100)
     file = models.FileField()
@@ -110,6 +113,7 @@ class Transcription(models.Model):
 
 class RecodringSession(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(TUser, on_delete=models.CASCADE, related_name="sessions")
     started = models.DateTimeField(auto_now_add=True)
     ended = models.DateTimeField(null=True, blank=True)
     recordings = models.JSONField(default=list)

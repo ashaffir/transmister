@@ -1,11 +1,15 @@
 from django import forms
 from django.conf import settings
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from django.contrib.auth import get_user_model
 from allauth.account.forms import SignupForm
 from allauth.account.models import EmailConfirmation, EmailConfirmationHMAC
 
 from users.utils import alert_admin, EmailThread
+from main.models import Control
 from .models import TUser, ContactUs
+
+User = get_user_model()
 
 
 class ContactUsForm(forms.ModelForm):
@@ -41,11 +45,6 @@ class TUserCreationForm(UserCreationForm):
         }
 
 
-from django.contrib.auth import get_user_model
-
-User = get_user_model()
-
-
 class TUserSignupForm(SignupForm):
     def clean_email(self):
         email = self.cleaned_data.get("email")
@@ -64,6 +63,15 @@ class TUserSignupForm(SignupForm):
 
         if user is None:
             return user
+
+        init_balance, created = Control.objects.get_or_create(name="balance")
+
+        if created:
+            init_balance.float_value = 0.075
+            init_balance.save()
+
+        user.balance = init_balance.float_value
+        user.save()
 
         context = {}
 

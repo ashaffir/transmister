@@ -4,20 +4,22 @@ from datetime import datetime
 from typing import Any, Dict
 
 from django.views.generic import TemplateView
-from django.views import View
 from django.utils.timezone import make_aware
 from django.contrib import messages
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404, render
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
 
 from transmister.settings import MEDIA_ROOT, MEDIA_URL
 from .models import RecodringSession, Recording, Transcription, Control
-from .utils import convert_aac_to_wav, transcribe_api, get_audio_length, logger
+from .utils import (
+    transcribe_api,
+    calculate_audio_duration,
+    get_recording_duration,
+    logger,
+)
 
 
 class HomeView(LoginRequiredMixin, TemplateView):
@@ -28,9 +30,11 @@ class HomeView(LoginRequiredMixin, TemplateView):
     def get(self, request):
         context = {}
         # Getting the last open session
-        curr_session = RecodringSession.objects.filter(ended__isnull=True).last()
+        curr_session = RecodringSession.objects.filter(
+            user=request.user, ended__isnull=True
+        ).last()
         if not curr_session:
-            curr_session = RecodringSession.objects.create()
+            curr_session = RecodringSession.objects.create(user=request.user)
 
         context["session"] = curr_session
         context["recordings"] = Recording.objects.filter(session=curr_session.id)
@@ -61,6 +65,7 @@ def upload_audio(request, session_id):
                 user=request.user,
                 session=session_id,
                 voice_recording=audio_blob,
+                duration=calculate_audio_duration(audio_blob),
                 audio_type=device,
             )
             recording.save()
@@ -133,7 +138,7 @@ def transcribe(request, session_id):
         curr_session = RecodringSession.objects.get(id=session_id)
         session_path = f"{MEDIA_ROOT}/recordings/user_{user.id}/{session_id}"
         # Creating a new session
-        RecodringSession.objects.create()
+        RecodringSession.objects.create(user=user)
 
         files = sorted(glob.glob(f"{session_path}/*.wav"), key=os.path.getmtime)
         total_audio_length = 0
@@ -143,7 +148,7 @@ def transcribe(request, session_id):
             with open(transcription_file, "a") as txt_file:
                 for idx, file in enumerate(files, start=1):
                     try:
-                        total_audio_length += get_audio_length(file)
+                        total_audio_length += get_recording_duration(file)
 
                         if user.get_available_minutes() < total_audio_length:
                             return JsonResponse(
@@ -168,7 +173,11 @@ def transcribe(request, session_id):
                     txt_file.writelines("\n")
 
             transcription = Transcription.objects.create(
-                file=transcription_file, session=session_id, duration=total_audio_length
+                file=transcription_file,
+                user=user,
+                session=session_id,
+                duration=total_audio_length,
+                language=language,
             )
 
             # Cost Calculation

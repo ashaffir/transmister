@@ -7,6 +7,7 @@
 {% endblock title %}
 {% block css %}
 <link href="{% static 'vendors/bootstrap/daterangepicker.css' %}" rel="stylesheet">
+<link href="{% static 'css/mystyle.css' %}" rel="stylesheet">
 {% endblock css %}
 
 {% block content %}
@@ -22,7 +23,7 @@
         <div class="x_panel">
             <div class="x_content">
                 <div class="row">
-                    <div class="col-md-4 col-sm-4  profile_left">
+                    <div class="col-md-2 col-sm-2 col-lg-2  profile_left">
                         <h3>User: {{ user }}</h3>
                         <h4><i class="fa fa-money user-profile-icon"></i>
                             Available balance: <b> $ {{ user.balance|floatformat:2 }}
@@ -31,6 +32,32 @@
                         </h4>
                         <a href="{% url 'users:upgrade' %}" class="btn btn-lg btn-primary">Top up account</a>
                         <hr>
+
+                    </div>
+                    <div class="col-md-1 col-sm-1">
+                    </div>
+                    <!-- User Activity report -->
+                    <div class="col-md-3 col-sm-3 col-lg-3"
+                        style="background-color: rgb(232, 241, 194); padding: 1rem; margin-right: 1rem; margin-bottom: 1rem;">
+                        <div class="">
+                            <h2>User Activity Report</h2>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 col-lg-12 col-12">
+                                <h4><i class="fa fa-file-sound-o"></i>
+                                    Transcriptions count: <b>{{ user.get_transcriptions_count }}</b></h4>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 col-lg-12 col-sm-12 col-12">
+                                <h4> <i class="fa fa-file-sound-o"></i> Transcriptions minutes:
+                                    <b>{{ user.get_total_transactions_duration }}</b> minutes
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End user activity -->
+                    <div class="col-md-4 col-sm-4 col-lg-4">
                         <form class="form-group" action="" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="row">
@@ -64,24 +91,6 @@
                                 </div>
                             </div>
                         </form>
-                    </div>
-                    <div class="col-md-1 col-sm-1">
-                    </div>
-                    <div class="col-md-4 col-sm-4">
-                        <div class="profile_title">
-                            <h2>User Activity Report</h2>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12 col-lg-12 col-12">
-                                <h4><i class="fa fa-file-sound-o"></i>
-                                    Transcriptions count: </h4>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12 col-lg-12 col-sm-12 col-12">
-                                <h4> <i class="fa fa-file-sound-o"></i> Transcriptions minutes: </h4>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>

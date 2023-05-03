@@ -27,6 +27,25 @@ class TUser(AbstractUser):
         """Return the number of minutes available for this user"""
         return self.balance / settings.PRICE_PER_MINUTE
 
+    def get_transcriptions_count(self):
+        """Return the number of transcriptions this user has made"""
+        from main.models import Transcription
+
+        return Transcription.objects.filter(user=self).count()
+
+    def get_total_transactions_duration(self):
+        """Return the total duration of all transactions this user has made"""
+        from main.models import Transcription
+
+        total_duration_min = Transcription.objects.filter(user=self).aggregate(
+            models.Sum("duration")
+        )["duration__sum"]
+
+        if total_duration_min is None:
+            return 0
+        else:
+            return total_duration_min * 60
+
 
 class ContactUs(models.Model):
     created = models.DateTimeField(auto_now_add=True)

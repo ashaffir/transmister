@@ -1,4 +1,3 @@
-import os
 import subprocess
 import openai
 import logging
@@ -28,9 +27,7 @@ def alert_admin(alert):
         email_message.send()
     except Exception as e:
         logger.error(f"ERROR: email not sent (utilities.py). Reason: {e}")
-        print(f"email not sent. ERROR: {e}")
 
-    print(f">>> Alerting Admin <<<")
     logger.info(f">>> Alerting Admin <<<")
 
 
@@ -42,7 +39,6 @@ def transcribe_api(audio_file, language: str = "he"):
     try:
         transcript = openai.Audio.transcribe("whisper-1", audio_file, language=language)
     except Exception as e:
-        print(f"Error transcribing audio file: {e}")
         logger.error(f"Error transcribing audio file: {e}")
         alert_admin(f"Error transcribing audio file: {e}")
         raise e
@@ -70,14 +66,23 @@ def convert_aac_to_wav(input_file, output_file):
         subprocess.run(cmd, check=True)
         return True
     except subprocess.CalledProcessError as e:
-        print(f"Error converting audio file: {e}")
+        logger.error(f"Error converting audio file: {e}")
         return False
 
 
-def get_audio_length(audio_file):
+def calculate_audio_duration(audio_file):
     """Calculating the duration of the audio for the transcription"""
     audio = AudioSegment.from_file(audio_file)
     duration_ms = len(audio)
     duration_s = duration_ms / 1000
     duration_min = duration_s / 60
     return duration_min
+
+
+def get_recording_duration(file_name: str) -> float:
+    """Get the duration of the recording"""
+    from main.models import Recording
+
+    recording_id = file_name.split("/")[-1].split(".")[-2]
+    recording = Recording.objects.get(id=recording_id)
+    return recording.duration

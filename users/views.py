@@ -3,12 +3,11 @@ from typing import Any, Dict
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.views.generic import TemplateView, FormView
-from django.views import generic
-from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from django.urls import reverse
@@ -59,7 +58,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         return redirect(request.META["HTTP_REFERER"])
 
 
-class UpgradeView(TemplateView):
+class UpgradeView(LoginRequiredMixin, TemplateView):
     """Page for collecting users payment information for upgrading to paid plan"""
 
     template_name = "users/upgrade.html"
@@ -91,7 +90,7 @@ class UpgradeView(TemplateView):
             return JsonResponse({"error": "Error creating the payment"}, status=400)
 
 
-class PayPalSettingsView(TemplateView):
+class PayPalSettingsView(LoginRequiredMixin, TemplateView):
     """Paypal settings view"""
 
     template_name = "users/paypal_settings.html"
@@ -119,6 +118,7 @@ class PayPalSettingsView(TemplateView):
         return redirect(request.META["HTTP_REFERER"])
 
 
+@login_required
 def execute_payment(request):
     token = request.GET.get("token", None)
     payer_id = request.GET.get("PayerID", None)
@@ -139,7 +139,7 @@ def cancel_payment(request):
     return HttpResponse("Payment canceled.")
 
 
-class ContactUs(FormView):
+class ContactUs(LoginRequiredMixin, FormView):
     """Contact us page"""
 
     form_class = ContactUsForm
