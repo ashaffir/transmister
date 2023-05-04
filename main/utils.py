@@ -83,6 +83,11 @@ def get_recording_duration(file_name: str) -> float:
     """Get the duration of the recording"""
     from main.models import Recording
 
-    recording_id = file_name.split("/")[-1].split(".")[-2]
-    recording = Recording.objects.get(id=recording_id)
-    return recording.duration
+    try:
+        recording_id = file_name.split("/")[-1].split(".")[-2]
+        recording = Recording.objects.get(id=recording_id)
+        return recording.duration
+    except:
+        recording_id = file_name.split("/")[-1].split("_")[-2]
+        recording = Recording.objects.get(id=recording_id)
+        return recording.duration
