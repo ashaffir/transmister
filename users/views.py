@@ -13,6 +13,8 @@ from django.contrib.auth.tokens import default_token_generator
 from django.urls import reverse
 
 from main.models import Control
+from .forms import PhoneNumberVerificationForm, PhoneNumberForm
+from .twilio_utils import send_otp, verify_otp
 from .models import TUser
 from .utils import alert_admin, send_email, logger
 from .forms import ContactUsForm
@@ -207,3 +209,56 @@ class ForgotPasswordView(TemplateView):
             request, "If this email is in our system you will receive instructions."
         )
         return redirect("account_login")
+
+
+class SubmitPhoneNumber(LoginRequiredMixin, TemplateView):
+    """Handling phone number submission"""
+
+    template_name: str = "users/submit_phone_number.html"
+
+    def get_context_data(self, **kwargs: Any):
+        context = super().get_context_data(**kwargs)
+        context["form"] = PhoneNumberForm()
+        return context
+
+    def post(self, request):
+        form = PhoneNumberForm(request.POST)
+        if form.is_valid():
+            request.user.phone_number = form.cleaned_data["phone_number"]
+            request.user.save()
+
+            send_otp(phone_number=request.user.phone_number)
+
+            return redirect(reverse("users:verify-phone-number"))
+
+        else:
+            return redirect(request.META["HTTP_REFERER"])
+
+
+def resend_otp(request):
+    send_otp(phone_number=request.user.phone_number)
+    messages.success(request, "SMS verification code sent successfuly.")
+    return redirect(request.META["HTTP_REFERER"])
+
+
+class VerifyPhoneNumberView(LoginRequiredMixin, TemplateView):
+    """Handling phone number verification"""
+
+    template_name: str = "users/verify_phone_number.html"
+
+    def get_context_data(self, **kwargs: Any):
+        context = super().get_context_data(**kwargs)
+        context["form"] = PhoneNumberVerificationForm()
+        return context
+
+    def post(self, request):
+        form = PhoneNumberVerificationForm(request.POST)
+        if form.is_valid():
+            otp = form.cleaned_data["verification_code"]
+            if verify_otp(otp=otp, phone_number=request.user.phone_number):
+                request.user.phone_number_verified = True
+                request.user.save()
+
+                return redirect(reverse("main:home"))
+
+        return redirect(request.META["HTTP_REFERER"])

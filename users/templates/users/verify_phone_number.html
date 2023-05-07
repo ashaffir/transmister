@@ -1,0 +1,37 @@
+{% extends 'account/base_account.html' %}
+{% load static %}
+
+{% load i18n %}
+
+{% block head_title %}{% trans "Verify Your Phone Number" %}{% endblock %}
+
+{% block content %}
+
+<a class="hiddenanchor" id="signup"></a>
+<a class="hiddenanchor" id="signin"></a>
+<div class="login_wrapper">
+    <div class="animate form login_form">
+        <section class="login_content">
+            <h1>{% trans "Verify Your Phone Number" %}</h1>
+
+            <p>
+                You should have received a code in your phone. Please enter that code here to verify your identity
+            </p>
+            <br>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button class="btn btn-primary btn-sm" type="submit">Verify</button>
+                <div>
+                    <a href="{% url 'users:resend-otp' %}">Didn't get. Send it again.</a> |
+                    <a href="{% url 'account_logout' %}">logout</a> |
+                </div>
+        </section>
+    </div>
+</div>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v52afc6f149f6479b8c77fa569edb01181681764108816"
+    integrity="sha512-jGCTpDpBAYDGNYR5ztKt4BQPGef1P0giN6ZGVUi835kFF88FOmmn8jBQWNgrNd8g/Yu421NdgWhwQoaOPFflDw=="
+    data-cf-beacon='{"rayId":"7bcc49047e03e3df","token":"cd0b4b3a733644fc843ef0b185f98241","version":"2023.3.0","si":100}'
+    crossorigin="anonymous"></script>
+
+{% endblock content %}

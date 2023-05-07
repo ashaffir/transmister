@@ -93,3 +93,15 @@ class TUserChangeForm(UserChangeForm):
     class Meta:
         model = TUser
         fields = ("username", "email")
+
+
+class PhoneNumberForm(forms.Form):
+    phone_number = forms.CharField(
+        max_length=20, widget=forms.TextInput(attrs={"class": "form-control"})
+    )
+
+
+class PhoneNumberVerificationForm(forms.Form):
+    verification_code = forms.CharField(
+        max_length=5, widget=forms.TextInput(attrs={"class": "form-control"})
+    )

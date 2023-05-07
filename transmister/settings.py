@@ -66,6 +66,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "users.users_middleware.PhoneNumberVerificationMiddleware",
 ]
 
 ROOT_URLCONF = "transmister.urls"
@@ -246,3 +247,8 @@ ACCOUNT_LOGOUT_REDIRECT_URL = "/"
 PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID")
 PAYPAL_SECRET = os.getenv("PAYPAL_SECRET")
 PAYPAL_MODE = os.getenv("PAYPAL_MODE")
+
+# Twilio
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
+TWILIO_VERIFY_SID = os.getenv("TWILIO_VERIFY_SID")

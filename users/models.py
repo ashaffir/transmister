@@ -13,7 +13,8 @@ class TUser(AbstractUser):
     joined = models.DateTimeField(auto_now_add=True)
     team = models.CharField(max_length=100, blank=True, null=True)
     categories_of_interest = models.JSONField(default=list, blank=True)
-
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    phone_number_verified = models.BooleanField(default=False)
     balance = models.FloatField(default=0.075)
 
     class Meta:
