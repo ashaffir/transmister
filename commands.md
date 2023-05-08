@@ -40,3 +40,6 @@ django-admin compilemessages
 # Ngrok or LocalTunnel
 ./ngrok http 8030
 lt --port 8030
+
+# Certbot
+sudo certbot --nginx -d soundscription.com -d www.soundscription.com

@@ -86,6 +86,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "django.template.context_processors.request",
                 "users.context_processors.user_abbr",
+                "users.context_processors.get_minute_price",
             ],
         },
     },
@@ -190,7 +191,7 @@ DEFAULT_FROM_EMAIL = "Transmister<transmister23@gmail.com>"
 OPENAI_KEY = os.getenv("OPENAI_KEY")
 WHISPER_PRICE_PER_MINUTE = float(os.getenv("WHISPER_PRICE_PER_MINUTE"))
 PRICE_MULTIPLIER = float(os.getenv("PRICE_MULTIPLIER"))
-PRICE_PER_MINUTE = WHISPER_PRICE_PER_MINUTE * PRICE_MULTIPLIER
+PRICE_PER_MINUTE = round(WHISPER_PRICE_PER_MINUTE * PRICE_MULTIPLIER, 2)
 
 # SSL
 SECURE_SSL_REDIRECT = False
