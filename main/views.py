@@ -50,7 +50,7 @@ class UserTranscriptionsView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context["media_url"] = f"{MEDIA_URL}recordings"
-        context["transcs"] = Transcription.objects.all()
+        context["transcs"] = Transcription.objects.filter(user=self.request.user)
         return context
 
 
