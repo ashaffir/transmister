@@ -16,6 +16,7 @@ class TUser(AbstractUser):
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     phone_number_verified = models.BooleanField(default=False)
     balance = models.FloatField(default=0.075)
+    twilio_send_again_count = models.IntegerField(default=0)
 
     class Meta:
         verbose_name = "T User"

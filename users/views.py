@@ -235,9 +235,26 @@ class SubmitPhoneNumber(LoginRequiredMixin, TemplateView):
             return redirect(request.META["HTTP_REFERER"])
 
 
+import time
+
+
 def resend_otp(request):
-    send_otp(phone_number=request.user.phone_number)
-    messages.success(request, "SMS verification code sent successfuly.")
+    max_resending, create = Control.objects.get_or_create(name="max_otp_resending")
+    if create:
+        max_resending.int_value = 5
+        max_resending.save()
+
+    if request.user.twilio_send_again_count < max_resending.int_value:
+        request.user.twilio_send_again_count += 1
+        request.user.save()
+        time.sleep(3)
+        # send_otp(phone_number=request.user.phone_number)
+        messages.success(request, "SMS verification code sent successfuly.")
+    else:
+        messages.error(
+            request,
+            "You have reached the maximum number of resending. Please contact support",
+        )
     return redirect(request.META["HTTP_REFERER"])
 
 
