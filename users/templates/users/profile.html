@@ -23,7 +23,7 @@
         <div class="x_panel">
             <div class="x_content">
                 <div class="row">
-                    <div class="col-md-2 col-sm-2 col-lg-2  profile_left">
+                    <div class="col-md-3 col-sm-3 col-lg-3  profile_left">
                         <h3>User: {{ user }}</h3>
                         <h4><i class="fa fa-money user-profile-icon"></i>
                             Available balance: <b> $ {{ user.balance|floatformat:2 }}
@@ -57,47 +57,56 @@
                         </div>
                     </div>
                     <!-- End user activity -->
-                    <div class="col-md-4 col-sm-4 col-lg-4">
-                        <form class="form-group" action="" method="post" enctype="multipart/form-data">
-                            {% csrf_token %}
-                            <div class="row">
-                                <div class="col-12">
-                                    <label for="changePAssword">Change Password</label>
-                                    <div class="row">
-                                        <div class="col-md-6 col-lg-6 col-sm-6">
-                                            <input class="form-control" type="password" id="cur_password"
-                                                name="cur_password" placeholder="Current password" required>
-                                        </div>
-                                    </div>
-                                    <br>
-                                    <div class="row">
-                                        <div class="col-6 col-md-6 col-sm-6 col-lg-6">
-                                            <input class="form-control" type="password" id="password1" name="password1"
-                                                placeholder="New password" required>
-                                        </div>
-                                        <div class="col-6 col-md-6 col-sm-6 col-lg-6">
-                                            <input class="form-control" type="password" id="password2" name="password2"
-                                                placeholder="Confirm Password" required>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <hr>
-                            <div class="row">
-                                <div class="col-12">
-                                    <button type="submit" id="changePasswordButton" name="change_password"
-                                        class="btn btn-success" onclick="return checkPasswords();"><i
-                                            class="fa fa-edit m-right-xs"></i>Submit</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
+
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<div class="clearfix"></div>
+
+<div class="x_panel">
+    <div class="x_content">
+        <div class="row">
+            <div class="col-md-4 col-sm-4 col-lg-4">
+                <form class="form-group" action="" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-12">
+                            <label for="changePAssword">Change Password</label>
+                            <div class="row">
+                                <div class="col-md-6 col-lg-6 col-sm-6">
+                                    <input class="form-control" type="password" id="cur_password" name="cur_password"
+                                        placeholder="Current password" required>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="row">
+                                <div class="col-6 col-md-6 col-sm-6 col-lg-6">
+                                    <input class="form-control" type="password" id="password1" name="password1"
+                                        placeholder="New password" required>
+                                </div>
+                                <div class="col-6 col-md-6 col-sm-6 col-lg-6">
+                                    <input class="form-control" type="password" id="password2" name="password2"
+                                        placeholder="Confirm Password" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-12">
+                            <button type="submit" id="changePasswordButton" name="change_password"
+                                class="btn btn-success" onclick="return checkPasswords();"><i
+                                    class="fa fa-edit m-right-xs"></i>Submit</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock content %}
 
 {% block js %}

@@ -45,7 +45,7 @@ class TUser(AbstractUser):
         if total_duration_min is None:
             return 0
         else:
-            return total_duration_min * 60
+            return round(total_duration_min, 3)
 
 
 class ContactUs(models.Model):

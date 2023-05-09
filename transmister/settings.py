@@ -185,20 +185,20 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = "transmister23@gmail.com"
 EMAIL_HOST_PASSWORD = os.getenv("GMAIL_EMAIL_HOST_PASSWORD")
-DEFAULT_FROM_EMAIL = "Transmister<transmister23@gmail.com>"
+DEFAULT_FROM_EMAIL = "SoundScription<transmister23@gmail.com>"
 
 # OpenAI
 OPENAI_KEY = os.getenv("OPENAI_KEY")
 WHISPER_PRICE_PER_MINUTE = float(os.getenv("WHISPER_PRICE_PER_MINUTE"))
 PRICE_MULTIPLIER = float(os.getenv("PRICE_MULTIPLIER"))
-PRICE_PER_MINUTE = round(WHISPER_PRICE_PER_MINUTE * PRICE_MULTIPLIER, 2)
+PRICE_PER_MINUTE = round(WHISPER_PRICE_PER_MINUTE * PRICE_MULTIPLIER, 3)
 
 # SSL
 SECURE_SSL_REDIRECT = False
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = "Lax"
-CSRF_TRUSTED_ORIGINS = ["https://transmister.com", "https://www.transmister.com"]
+CSRF_TRUSTED_ORIGINS = ["https://soundscription.com", "https://www.soundscription.com"]
 
 # Allauth
 LOGIN_URL = "account_login"
