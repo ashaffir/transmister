@@ -75,7 +75,6 @@
     }
 
     #loader-text {
-      font-size: 3rem;
       color: black;
       margin-bottom: 0;
       animation: blink 1s ease-in-out infinite;

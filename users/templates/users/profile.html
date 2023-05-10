@@ -13,7 +13,7 @@
 {% block content %}
 <div class="page-title">
     <div class="title_left">
-        <h3>User Profile</h3>
+        <h3>User Profile for {{ user }} </h3>
     </div>
 
 </div>
@@ -24,13 +24,14 @@
             <div class="x_content">
                 <div class="row">
                     <div class="col-md-3 col-sm-3 col-lg-3  profile_left">
-                        <h3>User: {{ user }}</h3>
+                        <h3>Available balance</h3>
                         <h4><i class="fa fa-money user-profile-icon"></i>
-                            Available balance: <b> $ {{ user.balance|floatformat:2 }}
+                            <b> $ {{ user.balance|floatformat:2 }}
                                 ({{user.get_available_minutes|floatformat:2 }} minutes) </b>
                             </li>
                         </h4>
                         <a href="{% url 'users:upgrade' %}" class="btn btn-lg btn-primary">Top up account</a>
+                        <p>Add credit to your account</p>
                         <hr>
 
                     </div>
@@ -40,7 +41,7 @@
                     <div class="col-md-3 col-sm-3 col-lg-3"
                         style="background-color: rgb(232, 241, 194); padding: 1rem; margin-right: 1rem; margin-bottom: 1rem;">
                         <div class="">
-                            <h2>User Activity Report</h2>
+                            <h2>User Activity Summary</h2>
                         </div>
                         <div class="row">
                             <div class="col-md-12 col-lg-12 col-12">

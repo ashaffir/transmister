@@ -178,6 +178,9 @@
                 mediaRecorder.start();
                 recording = true;
                 startTimer();
+            })
+            .catch(function (err) {
+                console.log('Error occurred: ' + err);
             });
     }
 

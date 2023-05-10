@@ -185,7 +185,7 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = "transmister23@gmail.com"
 EMAIL_HOST_PASSWORD = os.getenv("GMAIL_EMAIL_HOST_PASSWORD")
-DEFAULT_FROM_EMAIL = "SoundScription<transmister23@gmail.com>"
+DEFAULT_FROM_EMAIL = "SoundScription<support@soundscription.com>"
 
 # OpenAI
 OPENAI_KEY = os.getenv("OPENAI_KEY")
