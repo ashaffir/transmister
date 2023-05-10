@@ -21,12 +21,12 @@ class TUserAdmin(admin.ModelAdmin):
 @admin.register(ContactUs)
 class ContactUsAdmin(admin.ModelAdmin):
     list_display = (
-        "email",
+        "user",
         "subject",
         "message",
     )
     search_fields = (
-        "email",
+        "user",
         "subject",
         "message",
     )

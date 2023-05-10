@@ -51,8 +51,8 @@ class TUser(AbstractUser):
 
 class ContactUs(models.Model):
     created = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(TUser, on_delete=models.CASCADE)
     subject = models.CharField(max_length=100)
-    email = models.EmailField()
     message = models.TextField()
 
     class Meta:

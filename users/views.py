@@ -148,9 +148,17 @@ class ContactUs(LoginRequiredMixin, FormView):
     template_name = "users/contact_us.html"
     success_url = "/"
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({"user": self.request.user})
+        return kwargs
+
     def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
         form = self.get_form()
+
         if form.is_valid():
+            form.save()
+
             subject = form.cleaned_data.get("subject")
             message = form.cleaned_data.get("message")
             title = f"Contact us message from {request.user}"
@@ -169,6 +177,10 @@ class ContactUs(LoginRequiredMixin, FormView):
             return redirect(request.META["HTTP_REFERER"])
         else:
             logging.error(f"<MLO>> Contact us failed")
+            messages.error(
+                request,
+                f"Your message has not been sent. Please try again.{form.errors.as_text()}",
+            )
             return redirect(request.META["HTTP_REFERER"])
 
 

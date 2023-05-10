@@ -14,7 +14,6 @@ User = get_user_model()
 
 
 class ContactUsForm(forms.ModelForm):
-    email = forms.EmailField(widget=forms.EmailInput(attrs={"class": "form-control"}))
     subject = forms.CharField(
         max_length=100, widget=forms.TextInput(attrs={"class": "form-control"})
     )
@@ -22,7 +21,18 @@ class ContactUsForm(forms.ModelForm):
 
     class Meta:
         model = ContactUs
-        exclude = ("created",)
+        fields = ("subject", "message")
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user", None)
+        super(ContactUsForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        instance = super(ContactUsForm, self).save(commit=False)
+        instance.user = self.user
+        if commit:
+            instance.save()
+        return instance
 
 
 class TUserCreationForm(UserCreationForm):
