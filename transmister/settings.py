@@ -180,12 +180,22 @@ ADMIN_EMAIL = "alfred.shaffir@gmail.com"
 
 # Gmail Email Setup
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.gmail.com"
+
+# TITAN EMAIL
+EMAIL_HOST = "smtp.titan.email"
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = "transmister23@gmail.com"
-EMAIL_HOST_PASSWORD = os.getenv("GMAIL_EMAIL_HOST_PASSWORD")
+EMAIL_HOST_USER = "support@soundscription.com"
+EMAIL_HOST_PASSWORD = os.getenv("TITAN_EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = "SoundScription<support@soundscription.com>"
+
+# GMAIL
+# EMAIL_HOST = "smtp.gmail.com"
+# EMAIL_USE_TLS = True
+# EMAIL_PORT = 587
+# EMAIL_HOST_USER = "transmister23@gmail.com"
+# EMAIL_HOST_PASSWORD = os.getenv("GMAIL_EMAIL_HOST_PASSWORD")
+# DEFAULT_FROM_EMAIL = "SoundScription<support@soundscription.com>"
 
 # OpenAI
 OPENAI_KEY = os.getenv("OPENAI_KEY")
