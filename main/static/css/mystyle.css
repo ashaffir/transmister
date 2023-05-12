@@ -124,3 +124,22 @@
       background-color: #ccc;
       cursor: not-allowed;
     }
+
+    .time-col {
+      width: 200px;
+    }
+
+    .button-col {
+      width: 50px;
+    }
+
+    @media only screen and (max-width: 600px) {
+      .time-col {
+        width: 80%;
+      }
+
+      .button-col {
+        width: 20%;
+      }
+
+    }

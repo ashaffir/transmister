@@ -29,6 +29,13 @@ function showLoader(text) {
     }
 }
 
+function showPPLoader(text) {
+    loaderText.textContent = text;
+    loaderContainer.style.display = 'block';
+}
+
+
+
 function hideLoader() {
     loaderContainer.style.display = 'none';
     stopBtn.style.display = 'none';

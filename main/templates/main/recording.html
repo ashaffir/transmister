@@ -9,14 +9,6 @@
 </style>
 {% endblock css %}
 {% block content %}
-<div id="loader-container">
-    <div id="loader-content">
-        <p id="loader-text"></p>
-        <button id="stop-btn" style="display: none;" class="btn btn-lg btn-warning">Stop Recording</button>
-        <span id="recording-time" style="margin-left: 10px;"></span>
-        <div id="loader"></div>
-    </div>
-</div>
 <section id="active_recording_section">
 
     <div class="row">
@@ -32,24 +24,24 @@
     </div>
     <div class="row mb-5">
         <div class="col-12 col-sm-12 col-lg-12 col-md-12" id="recordings">
-            <table class="table">
+            <table class="table table-responsive">
                 <thead>
                     <th>Recording Time</th>
-                    <th></th>
-                    <th></th>
+                    <th>Play</th>
+                    <th>Delete</th>
                 </thead>
                 <tbody>
                     {% for record in recordings %}
                     <tr>
-                        <td>
+                        <td class="time-col">
                             {{ record.created }}
                         </td>
-                        <td>
+                        <td class="button-col">
                             <a href="{{ record.voice_recording.url }}">
                                 <i class="fa fa-play-circle-o fa-2x"></i>
                             </a>
                         </td>
-                        <td>
+                        <td class="button-col">
                             <a href="#">
                                 <i class="fa fa-trash fa-2x" onclick="deleteRecording('{{ record.id }}')"></i>
                             </a>

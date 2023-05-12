@@ -27,8 +27,24 @@ PayPal Payment
     </div>
     <div class="row">
         <div class="col-2 col-md-2 col-lg-2 col-sm-12">
-            <input type="number" id="amount" name="amount" class="form-control" placeholder="Enter amount here"
-                required>
+            <div class="row">
+                <div class="col-md-12 col-lg-12 cl-sm-12">
+                    <input type="number" id="amount" name="amount" class="form-control" placeholder="Enter amount here"
+                        required>
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-sm-3 col-lg-3 col-md-3 col-3">
+                    <label for="dollar"><i class="fa fa-dollar fa-2x"></i></label>
+                    <input type="radio" name="currency" id="dollar" value="usd" checked="" required />
+                </div>
+                <div class="col-sm-3 col-lg-3 col-md-3 col-3">
+                    <label for="euro"><i class="fa fa-euro fa-2x"></i></label>
+                    <input type="radio" name="currency" id="euro" value="eur" />
+                </div>
+            </div>
+
         </div>
         <div class="col-6 col-md-6 col-lg-6 col-sm-12">
             <button class="btn btn-success btn-lg" id="pay-with-paypal">Pay with PayPal</button>
@@ -39,19 +55,31 @@ PayPal Payment
 {% endblock %}
 
 {% block js %}
+<script src="{% static 'js/myjs.js' %}"></script>
 <script>
     $(document).ready(function () {
         let amount = document.getElementById("amount");
+        let selected_currency = document.querySelectorAll('input[name="currency"]');
+
+
         $('#pay-with-paypal').on('click', function () {
             if (amount.value.trim() === '') {
                 alert("Amount missing.");
                 return false;
             }
+            for (var i = 0; i < selected_currency.length; i++) {
+                if (selected_currency[i].checked) {
+                    selectedCurrency = selected_currency[i].value;
+                    break;
+                }
+            }
+
+            showPPLoader("Redirecting to PayPal...");
             $.ajax({
                 url: '{% url "users:upgrade" %}',
                 type: 'POST',
                 dataType: 'json',
-                data: { "amount": amount.value },
+                data: { "amount": amount.value, "currency": selectedCurrency },
                 success: function (response) {
                     if (response.url) {
                         window.location.href = response.url;

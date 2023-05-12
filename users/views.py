@@ -72,7 +72,7 @@ class UpgradeView(LoginRequiredMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         user = request.user
         amount = request.POST.get("amount")
-        currency = "USD"
+        currency = request.POST.get("currency").upper()
         return_url = request.build_absolute_uri(reverse("users:execute-payment"))
         cancel_url = request.build_absolute_uri(reverse("users:cancel-payment"))
 
