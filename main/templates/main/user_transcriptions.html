@@ -5,6 +5,7 @@
 <link href="{% static 'css/mystyle.css' %}" rel="stylesheet">
 {% endblock css %}
 {% block content %}
+
 <div class="row">
     <div class="col-sm-12">
         <h1>My Transcriptions</h1>
@@ -18,11 +19,12 @@
         <!-- start accordion -->
         <div class="accordion" id="accordion" role="tablist" aria-multiselectable="true">
             {% for trans in transcs %}
+            {% include 'main/modals/confirm_delete_transcription_modal.html' with transcription_id=trans.id %}
             <div class="panel">
                 <a class="panel-heading" role="tab" id="heading_{{ forloop.counter }}" data-toggle="collapse"
                     data-parent="#accordion" href="#collapse_{{ forloop.counter }}" aria-expanded="false"
                     aria-controls="collapse_{{ forloop.counter }}">
-                    <h4 class="panel-title">{{ trans.created}}</h4>
+                    <h4 class="panel-title">{{ trans.created}}: <b>{{ trans.transcription_name }}</b></h4>
                 </a>
                 <div id="collapse_{{ forloop.counter }}" class="panel-collapse collapse" role="tabpanel"
                     aria-labelledby="heading_{{ forloop.counter }}">
@@ -35,12 +37,26 @@
                         </p>
                     </div>
                     <div class="panel-footer">
-                        <a href="{{ media_url }}/{{ trans.session }}/{{ trans.get_file_name }}"
-                            download="{{ trans.get_file_name }}" class="btn btn-warning">
-                            Download
-                        </a>
+                        <div class="row">
+                            <div class="col-sm-3 col-md-2 col-lg-2">
+                                <a href="{{ media_url }}/{{ trans.session }}/{{ trans.get_file_name }}"
+                                    download="{{ trans.get_file_name }}" class="btn btn-warning">
+                                    Download
+                                </a>
+                            </div>
+                            <div class="col-sm-3 col-md-2 col-lg-2">
+                                {% post_to_whatsapp object_or_url "Share via WhatsApp" %}
+                            </div>
+                            <div class="col-sm-3 col-md-2 col-lg-2">
+                                <a href="#">
+                                    <button data-toggle="modal"
+                                        data-target="#modal_confirm_delete_transcription_{{ trans.id }}">
+                                        <i class="fa fa-trash fa-2x"></i>
+                                    </button>
+                                </a>
+                            </div>
+                        </div>
 
-                        {% post_to_whatsapp object_or_url "Share via WhatsApp" %}
                     </div>
                 </div>
             </div>
@@ -53,5 +69,21 @@
 {% endblock %}
 
 {% block js %}
+<script>
+
+    function deleteTranscription(transcriptionId) {
+        url = `{% url 'main:delete-transcription' %}?transcription_id=${transcriptionId}`;
+        $.ajax({
+            url: url,
+            method: "GET",
+            success: function (response) {
+                if (response.success) {
+                    console.log(`OK`);
+                    location.reload();
+                }
+            }
+        })
+    }
+</script>
 
 {% endblock js %}

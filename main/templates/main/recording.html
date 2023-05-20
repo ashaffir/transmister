@@ -69,7 +69,11 @@
             </div>
         </div>
         <div class="col-sm-3 col-lg-2 col-md-2 col-2">
-            <button id="runButton" onclick="transcribeRecording()" class="transcribe_button">
+            <input class="form-control" type="text" name="transcription_name" placeholder="Transcription name"
+                id="transcriptionName">
+        </div>
+        <div class="col-sm-3 col-lg-2 col-md-2 col-2">
+            <button id="runButton" onclick="return transcribeRecording();" class="transcribe_button">
                 Transcribe
             </button>
         </div>
@@ -86,7 +90,7 @@
     <div class="col-12">
         <div class="x_panel">
             <div class="x_title">
-                <h2>Audio text</h2>
+                <h2>Audio text for <b><span id="transcriptionDisplayName"></span></b></h2>
                 <div class="clearfix"></div>
             </div>
             <div class="x_content">
@@ -216,6 +220,9 @@
     var transcription_language = document.querySelectorAll('input[name="language"]');
     const top_up_button_ele = document.getElementById("topUpButton");
     const active_recording_section_ele = document.getElementById("active_recording_section");
+    const transcription_name_ele = document.getElementById("transcriptionName");
+    const transcription_display_name_ele = document.getElementById("transcriptionDisplayName");
+
 
     function transcribeRecording() {
         showLoader('Transcribing...');
@@ -229,8 +236,9 @@
         }
 
         var formData = new FormData();
-        formData.append("csrfmiddlewaretoken", document.querySelector('[name=csrfmiddlewaretoken]').value)
-        formData.append("language", selectedLanguage)
+        formData.append("csrfmiddlewaretoken", document.querySelector('[name=csrfmiddlewaretoken]').value);
+        formData.append("language", selectedLanguage);
+        formData.append("transcription_name", transcription_name_ele.value);
 
         $.ajax({
             url: url,
@@ -241,6 +249,7 @@
             success: function (message) {
                 if (message.success) {
                     transcription_result_el.innerHTML = message.content;
+                    transcription_display_name_ele.innerHTML = transcription_name_ele.value;
                     hideLoader();
                     active_recording_section_ele.classList.add('hidden');
                     transcribeBtn.classList.add('hidden');

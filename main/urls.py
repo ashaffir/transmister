@@ -26,6 +26,11 @@ urlpatterns = [
         views.delete_recording,
         name="delete-recording",
     ),
+    path(
+        "delete-transcription/",
+        views.delete_transcription,
+        name="delete-transcription",
+    ),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

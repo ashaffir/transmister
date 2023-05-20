@@ -87,6 +87,7 @@ class Transcription(models.Model):
     )
     created = models.DateTimeField(auto_now_add=True)
     session = models.CharField(max_length=100)
+    transcription_name = models.CharField(max_length=100, null=True, blank=True)
     file = models.FileField()
     language = models.CharField(max_length=50, null=True, blank=True)
     duration = models.FloatField()

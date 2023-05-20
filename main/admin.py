@@ -21,6 +21,7 @@ class TranscriptioAdmin(admin.ModelAdmin):
         "created",
         "user",
         "language",
+        "transcription_name",
     ]
     search_fields = [
         "file",

@@ -132,6 +132,15 @@ def delete_recording(request):
 
 
 @login_required
+def delete_transcription(request):
+    transcription = get_object_or_404(
+        Transcription, id=request.GET.get("transcription_id")
+    )
+    transcription.delete()
+    return JsonResponse({"success": True})
+
+
+@login_required
 def transcribe(request, session_id):
     user = request.user
     if request.method == "POST":
@@ -176,6 +185,7 @@ def transcribe(request, session_id):
                 file=transcription_file,
                 user=user,
                 session=session_id,
+                transcription_name=request.POST["transcription_name"],
                 duration=total_audio_length,
                 language=language,
             )
@@ -195,7 +205,13 @@ def transcribe(request, session_id):
 
             with open(transcription_file, "r") as f:
                 txt_content = f.read()
-            return JsonResponse({"success": True, "content": txt_content})
+            return JsonResponse(
+                {
+                    "success": True,
+                    "content": txt_content,
+                    "transcription_name": transcription.transcription_name,
+                }
+            )
 
         else:
             messages.warning(request, "No files to transcribe")
